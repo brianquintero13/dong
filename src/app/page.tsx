@@ -129,7 +129,6 @@ const CustomSnakeEdge = ({ sourceX, sourceY, targetX, targetY, source, target, d
 };
 
 const edgeTypes = { customSnake: CustomSnakeEdge };
-const extent: CoordinateExtent = [[-200, -200], [800, 600]];
 
 function AutomataContent() {
   const { isRetroTheme } = useTheme();
@@ -366,7 +365,6 @@ function AutomataContent() {
                   nodeTypes={nodeTypes}
                   fitView
                   fitViewOptions={{ maxZoom: 1.3 }}
-                  extent={extent}
                   colorMode={isRetroTheme ? "dark" : "light"}
                   panOnDrag={false} zoomOnScroll={false} zoomOnPinch={false} zoomOnDoubleClick={false} nodesDraggable={false} nodesConnectable={false} elementsSelectable={false}
               >

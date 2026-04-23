@@ -34,7 +34,6 @@ const CustomNode = memo(({ data }: any) => (
 ));
 
 const nodeTypes = { custom: CustomNode };
-const extent: CoordinateExtent = [[-200, -200], [800, 600]];
 
 const pdaMachine = {
     states: ['q0', 'q1', 'q2'],
@@ -398,7 +397,6 @@ function PDAContent() {
                                 nodeTypes={nodeTypes}
                                 fitView
                                 fitViewOptions={{ padding: 0.3 }}
-                                extent={extent}
                                 colorMode={isRetroTheme ? "dark" : "light"}
                                 panOnDrag={false}
                                 zoomOnScroll={false}
