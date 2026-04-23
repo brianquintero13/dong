@@ -1,0 +1,464 @@
+'use client';
+
+import React, { useState, useEffect, useRef, memo } from 'react';
+import {
+  ReactFlow, Background, Panel, CoordinateExtent,
+  BaseEdge, EdgeLabelRenderer, Position, Node, Edge,
+  useReactFlow, ReactFlowProvider, Handle
+} from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+import { useTheme } from "./ThemeContext";
+
+const AutoFitView = ({ splitPercent }: { splitPercent: number }) => {
+  const { fitView } = useReactFlow();
+  useEffect(() => {
+    fitView({ padding: 0.35, duration: 0 });
+  }, [splitPercent, fitView]);
+  return null;
+};
+
+// Nodes increased to 90px!
+const CustomNode = memo(({ data }: any) => (
+    <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div style={{
+        width: '90px', height: '90px', borderRadius: '50%',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontWeight: 'bold', fontSize: '22px', border: data.border,
+        backgroundColor: data.backgroundColor, color: data.color,
+        animation: data.animation, boxShadow: data.boxShadow, zIndex: 100
+      }}>
+        <Handle type="target" position={Position.Top} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', opacity: 0 }} />
+        {data.label}
+        <Handle type="source" position={Position.Top} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', opacity: 0 }} />
+      </div>
+    </div>
+));
+
+const nodeTypes = { custom: CustomNode };
+
+const exampleMachine1 = {
+  states: ['q0', 'q1'],
+  alphabet: ['0', '1'],
+  startState: 'q0',
+  acceptStates: ['q0'],
+  transitions: {
+    'q0': { '0': 'q1', '1': 'q0' },
+    'q1': { '0': 'q0', '1': 'q1' }
+  }
+};
+
+const getPointOnCircle = (cx: number, cy: number, r: number, a: number) => ({
+  x: cx + r * Math.cos(a),
+  y: cy + r * Math.sin(a)
+});
+
+const CustomSnakeEdge = ({ sourceX, sourceY, targetX, targetY, source, target, data }: any) => {
+  const { isRetroTheme } = useTheme();
+  // Radius updated to 45 (half of 90px) to match the new larger nodes
+  const radius = 45;
+
+  let edgePath = '';
+  let labelX = 0;
+  let labelY = 0;
+
+  if (source === 'start-dummy') {
+    const end = getPointOnCircle(targetX, targetY, radius, Math.PI);
+    edgePath = `M ${sourceX} ${sourceY} L ${end.x} ${end.y}`;
+    labelX = sourceX + (end.x - sourceX) / 2;
+    labelY = sourceY - 14;
+  } else if (source === target) {
+    const startAngle = -Math.PI * 0.7;
+    const endAngle = -Math.PI * 0.3;
+    const start = getPointOnCircle(sourceX, sourceY, radius, startAngle);
+    const end = getPointOnCircle(sourceX, sourceY, radius, endAngle);
+
+    // Adjusted control points for the larger self-loop
+    edgePath = `M ${start.x} ${start.y} C ${sourceX - 70} ${sourceY - 140}, ${sourceX + 70} ${sourceY - 140}, ${end.x} ${end.y}`;
+    labelX = sourceX;
+    labelY = sourceY - 105;
+  } else {
+    const dx = targetX - sourceX;
+    const dy = targetY - sourceY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    const curve = data.curve || -90;
+
+    const midX = sourceX + dx / 2;
+    const midY = sourceY + dy / 2;
+    const nx = -dy / dist;
+    const ny = dx / dist;
+
+    const cx = midX + nx * curve;
+    const cy = midY + ny * curve;
+
+    const angleStart = Math.atan2(cy - sourceY, cx - sourceX);
+    const start = getPointOnCircle(sourceX, sourceY, radius, angleStart);
+
+    const angleEnd = Math.atan2(cy - targetY, cx - targetX);
+    const end = getPointOnCircle(targetX, targetY, radius, angleEnd);
+
+    edgePath = `M ${start.x} ${start.y} Q ${cx} ${cy} ${end.x} ${end.y}`;
+    labelX = midX + nx * (curve * 0.5);
+    labelY = midY + ny * (curve * 0.5);
+  }
+
+  const strokeColor = data.isActive ? (isRetroTheme ? '#38bdf8' : '#2563eb') : '#94a3b8';
+  const markerId = `arrow-${source}-${target}-${data.isActive ? 'active' : 'idle'}`;
+
+  return (
+      <>
+        <defs>
+          <marker id={markerId} markerWidth="14" markerHeight="14" refX="9" refY="6" orient="auto-start-reverse">
+            <path d="M 0 2 L 10 6 L 0 10 z" fill={strokeColor} />
+          </marker>
+        </defs>
+        <BaseEdge path={edgePath} markerEnd={`url(#${markerId})`} style={{ strokeWidth: data.isActive ? 4 : 2, stroke: strokeColor, fill: 'none' }} />
+        {isRetroTheme && data.isActive && (
+            <g key={data.stepIndex}>
+              <path d={edgePath} fill="none" stroke="#ffffff" strokeWidth="6" strokeDasharray="100 100" style={{ animation: `snake-draw ${data.speed}ms linear forwards` }} />
+              <path d={edgePath} fill="none" stroke="#3b82f6" strokeWidth="3" strokeDasharray="100 100" style={{ animation: `snake-draw ${data.speed}ms linear forwards` }} />
+            </g>
+        )}
+        <EdgeLabelRenderer>
+          <div style={{ position: 'absolute', transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`, backgroundColor: isRetroTheme ? '#1f2937' : '#ffffff', padding: '4px 8px', borderRadius: '6px', color: isRetroTheme ? '#ffffff' : '#0f172a', fontWeight: 'bold', fontSize: '14px', border: isRetroTheme ? '2px solid #38bdf8' : '2px solid #cbd5e1', pointerEvents: 'none', zIndex: 100, whiteSpace: 'pre-wrap', textAlign: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+            {data.label}
+          </div>
+        </EdgeLabelRenderer>
+      </>
+  );
+};
+
+const edgeTypes = { customSnake: CustomSnakeEdge };
+const extent: CoordinateExtent = [[-200, -200], [800, 600]];
+
+function AutomataContent() {
+  const { isRetroTheme } = useTheme();
+
+  const bgApp = isRetroTheme ? '#020617' : '#cbd5e1';
+  const controlsBg = isRetroTheme ? '#0f172a' : '#f0f9ff';
+  const controlsBorder = isRetroTheme ? '#38bdf8' : '#0ea5e9';
+  const textPrimary = isRetroTheme ? '#ffffff' : '#0f172a';
+  const textSecondary = isRetroTheme ? '#94a3b8' : '#475569';
+  const canvasBg = isRetroTheme ? '#000000' : '#ffffff';
+  const canvasBorder = isRetroTheme ? '#475569' : '#94a3b8';
+  const logBg = isRetroTheme ? '#1e1b4b' : '#ffffff';
+  const logBorder = isRetroTheme ? '#818cf8' : '#6366f1';
+  const logLine = isRetroTheme ? '#818cf8' : '#6366f1';
+  const inputBg = isRetroTheme ? '#1f2937' : '#ffffff';
+  const shadow = isRetroTheme ? '0 0 20px rgba(56, 189, 248, 0.1)' : '0 8px 20px rgba(0,0,0,0.15)';
+
+  const [inputString, setInputString] = useState('10100');
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [history, setHistory] = useState<string[]>([exampleMachine1.startState]);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState(800);
+
+  const [splitPercent, setSplitPercent] = useState(65);
+  const [isDragging, setIsDragging] = useState(false);
+  const splitContainerRef = useRef<HTMLDivElement>(null);
+  const logContainerRef = useRef<HTMLDivElement>(null);
+
+  const currentState = history[history.length - 1];
+  const isFinished = currentIndex >= inputString.length;
+  const isAccepted = isFinished && exampleMachine1.acceptStates.includes(currentState);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+    const startX = e.clientX;
+    const startPercent = splitPercent;
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      if (!splitContainerRef.current) return;
+      const containerWidth = splitContainerRef.current.getBoundingClientRect().width;
+      const dx = moveEvent.clientX - startX;
+      const newPercent = startPercent + (dx / containerWidth) * 100;
+      setSplitPercent(Math.max(25, Math.min(newPercent, 75)));
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
+
+  useEffect(() => {
+    if (logContainerRef.current) {
+      setTimeout(() => {
+        logContainerRef.current?.scrollTo({
+          top: logContainerRef.current.scrollHeight,
+          behavior: 'smooth'
+        });
+      }, 50);
+    }
+  }, [history.length, isFinished]);
+
+  const nodes: Node[] = [
+    { id: 'start-dummy', type: 'custom', position: { x: 40, y: 200 }, data: { label: '' } },
+    { id: 'q0', type: 'custom', position: { x: 200, y: 200 }, data: { label: 'q0' } },
+    { id: 'q1', type: 'custom', position: { x: 600, y: 200 }, data: { label: 'q1' } }
+  ].map(n => {
+    if (n.id === 'start-dummy') {
+      return { ...n, style: { opacity: 0, pointerEvents: 'none' } };
+    }
+
+    const isActive = n.id === currentState;
+    let animationStyle = 'none';
+    if (isActive && isFinished) {
+      animationStyle = isAccepted ? 'node-pulse-green 2s infinite' : 'node-shake-red 0.5s ease-in-out forwards';
+    }
+    return {
+      ...n,
+      zIndex: 100,
+      data: {
+        ...n.data,
+        border: isRetroTheme
+            ? (n.id === 'q0' ? '5px double #ffffff' : '3px solid #ffffff')
+            : (n.id === 'q0' ? '5px double #94a3b8' : '3px solid #94a3b8'),
+        backgroundColor: isActive ? (isRetroTheme ? '#fef08a' : '#2563eb') : (isRetroTheme ? '#1f2937' : '#ffffff'),
+        color: isActive ? (isRetroTheme ? '#854d0e' : '#ffffff') : textPrimary,
+        animation: animationStyle,
+        boxShadow: isActive ? shadow : 'none'
+      }
+    };
+  });
+
+  const getEdgeId = (from: string, read: string) => {
+    if (from === 'q0' && read === '0') return 'e0';
+    if (from === 'q0' && read === '1') return 'e1';
+    if (from === 'q1' && read === '0') return 'e2';
+    if (from === 'q1' && read === '1') return 'e3';
+    return null;
+  };
+
+  const activeEdgeId = (!isFinished && currentIndex > 0) ? getEdgeId(history[currentIndex-1], inputString[currentIndex-1]) : null;
+
+  const edges: Edge[] = [
+    { id: 'e-start', source: 'start-dummy', target: 'q0', type: 'customSnake', data: { label: 'Start', curve: 0 } },
+    { id: 'e0', source: 'q0', target: 'q1', type: 'customSnake', data: { label: '0', curve: 50 } },
+    { id: 'e1', source: 'q0', target: 'q0', type: 'customSnake', data: { label: '1' } },
+    { id: 'e2', source: 'q1', target: 'q0', type: 'customSnake', data: { label: '0', curve: 50 } },
+    { id: 'e3', source: 'q1', target: 'q1', type: 'customSnake', data: { label: '1' } }
+  ].map(edge => {
+    let isEdgeActive = false;
+    if (edge.id === 'e-start') {
+      isEdgeActive = currentIndex === 0 && !isFinished;
+    } else {
+      isEdgeActive = edge.id === activeEdgeId;
+    }
+
+    return {
+      ...edge,
+      zIndex: 0,
+      data: { ...edge.data, isActive: isEdgeActive, speed: playbackSpeed }
+    };
+  });
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isPlaying && !isFinished) {
+      interval = setInterval(() => {
+        if (currentIndex < inputString.length) {
+          const nextState = exampleMachine1.transitions[currentState as keyof typeof exampleMachine1.transitions][inputString[currentIndex] as '0' | '1'];
+          if (nextState) {
+            setHistory(prev => [...prev, nextState]);
+            setCurrentIndex(prev => prev + 1);
+          }
+        }
+      }, playbackSpeed);
+    } else if (isFinished) {
+      setIsPlaying(false);
+    }
+    return () => clearInterval(interval);
+  }, [isPlaying, currentIndex, isFinished, playbackSpeed, currentState, inputString]);
+
+  const handleStepBackward = () => {
+    if (currentIndex > 0) {
+      setHistory(prev => prev.slice(0, -1));
+      setCurrentIndex(prev => prev - 1);
+      setIsPlaying(false);
+    }
+  };
+
+  const handleReset = () => {
+    setCurrentIndex(0);
+    setHistory([exampleMachine1.startState]);
+    setIsPlaying(false);
+  };
+
+  const MiniNode = ({ id, isAccept, isActive }: { id: string, isAccept: boolean, isActive?: boolean }) => (
+      <div style={{ width: '40px', height: '40px', borderRadius: '50%', border: isAccept ? '4px double' : '2px solid', borderColor: isActive ? (isRetroTheme ? '#fef08a' : '#1d4ed8') : (isRetroTheme ? '#ffffff' : '#cbd5e1'), backgroundColor: isActive ? (isRetroTheme ? '#854d0e' : '#2563eb') : (isRetroTheme ? '#1f2937' : '#ffffff'), color: isActive ? (isRetroTheme ? '#fef08a' : '#ffffff') : textPrimary, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px', boxShadow: isActive ? shadow : 'none' }}>
+        {id}
+      </div>
+  );
+
+  let actionMessage = null;
+  if (isFinished) {
+    actionMessage = isAccepted ? '✅ Accepted!' : '❌ Rejected';
+  } else {
+    const nextState = exampleMachine1.transitions[currentState as keyof typeof exampleMachine1.transitions]?.[inputString[currentIndex] as '0' | '1'];
+    if (nextState) actionMessage = `Read: '${inputString[currentIndex]}' ➔ ${nextState}`;
+  }
+
+  return (
+      <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: bgApp, color: textPrimary, width: '100%', flex: 1, minHeight: 0, overflow: 'hidden', userSelect: isDragging ? 'none' : 'auto' }}>
+        <style>{`
+        html, body { margin: 0; padding: 0; height: 100dvh; overflow: hidden !important; display: flex; flex-direction: column; }
+        main, #__next, div[data-reactroot] { flex: 1 !important; min-height: 0 !important; display: flex !important; flex-direction: column !important; overflow: hidden !important; }
+        @keyframes snake-draw { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+        @keyframes node-shake-red { 0%, 100% { transform: translateX(0); border-color: #ef4444 !important; } 25% { transform: translateX(-5px); border-color: #ef4444 !important; } 75% { transform: translateX(5px); border-color: #ef4444 !important; } }
+        @keyframes node-pulse-green { 0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.8); border-color: #10b981 !important; } 70% { box-shadow: 0 0 0 20px rgba(16,185,129,0); border-color: #10b981 !important; } 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); border-color: #10b981 !important; } }
+      `}</style>
+
+        {/* Header Controls */}
+        <div style={{ padding: '24px 24px 32px 24px', backgroundColor: controlsBg, borderBottom: `4px solid ${controlsBorder}`, zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0, boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', flexWrap: 'wrap', justifyContent: 'flex-start', width: '100%' }}>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                <label style={{ marginTop: '10px', fontSize: '13px', fontWeight: 'bold', color: textPrimary, textTransform: 'uppercase', letterSpacing: '1px' }}>
+                  Input Sequence:
+                </label>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <input
+                      value={inputString}
+                      onChange={(e) => { setInputString(e.target.value.replace(/[^01]/g, '')); handleReset(); }}
+                      placeholder="10100"
+                      style={{ padding: '8px 16px', borderRadius: '8px', border: `3px solid ${controlsBorder}`, backgroundColor: inputBg, color: textPrimary, fontWeight: '900', fontSize: '16px', letterSpacing: '2px', fontFamily: 'monospace', outline: 'none', width: '140px', boxShadow: shadow }}
+                  />
+                  <span style={{ marginTop: '8px', fontSize: '11px', color: textSecondary, fontStyle: 'italic', fontWeight: 'bold' }}>*Use only: 0, 1</span>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', height: '41px' }}>
+              <button onClick={handleStepBackward} disabled={currentIndex === 0} style={{ padding: '10px 16px', backgroundColor: '#374151', color: '#ffffff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>⏮ Back</button>
+              <button onClick={() => {
+                if (currentIndex < inputString.length) {
+                  const nextState = exampleMachine1.transitions[currentState as keyof typeof exampleMachine1.transitions][inputString[currentIndex] as '0' | '1'];
+                  if (nextState) { setHistory(prev => [...prev, nextState]); setCurrentIndex(prev => prev + 1); }
+                }
+              }} disabled={isFinished} style={{ padding: '10px 16px', backgroundColor: '#3b82f6', color: '#ffffff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>Step ⏭</button>
+              <button onClick={() => setIsPlaying(!isPlaying)} disabled={isFinished} style={{ padding: '10px 16px', backgroundColor: '#10b981', color: '#ffffff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>{isPlaying ? '⏸ Pause' : '▶️ Play'}</button>
+              <button onClick={handleReset} style={{ padding: '10px 16px', backgroundColor: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>↺ Reset</button>
+              <div style={{ width: '3px', height: '30px', backgroundColor: controlsBorder, margin: '5px 8px 0 8px', borderRadius: '2px' }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', backgroundColor: inputBg, padding: '0 16px', borderRadius: '8px', border: `3px solid ${controlsBorder}`, boxShadow: shadow }}>
+                <span style={{ fontSize: '14px', fontWeight: 'bold', color: textPrimary }}>Speed:</span>
+                <input type="range" min="100" max="2000" step="100" value={2100 - playbackSpeed} onChange={(e) => setPlaybackSpeed(2100 - parseInt(e.target.value))} style={{ cursor: 'pointer', accentColor: controlsBorder }} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Splitter Zone */}
+        <div ref={splitContainerRef} style={{ display: 'flex', flexDirection: 'row', flex: 1, padding: '24px', width: '100%', minHeight: 0, overflow: 'hidden' }}>
+
+          <div style={{ width: `${splitPercent}%`, minWidth: 0, height: '100%', display: 'flex', paddingRight: '12px', boxSizing: 'border-box' }}>
+            <div style={{ flex: 1, backgroundColor: canvasBg, position: 'relative', border: `3px solid ${canvasBorder}`, borderRadius: '12px', overflow: 'hidden', boxShadow: shadow }}>
+              <ReactFlow
+                  nodes={nodes}
+                  edges={edges}
+                  edgeTypes={edgeTypes}
+                  nodeTypes={nodeTypes}
+                  fitView
+                  fitViewOptions={{ maxZoom: 1.3 }}
+                  extent={extent}
+                  colorMode={isRetroTheme ? "dark" : "light"}
+                  panOnDrag={false} zoomOnScroll={false} zoomOnPinch={false} zoomOnDoubleClick={false} nodesDraggable={false} nodesConnectable={false} elementsSelectable={false}
+              >
+                <AutoFitView splitPercent={splitPercent} />
+
+                {/* TIGHTENED PADDING AND REMOVED TITLE TEXT */}
+                <Panel position="top-center" style={{ marginTop: '20px', backgroundColor: controlsBg, padding: '12px 16px', borderRadius: '12px', border: `3px solid ${controlsBorder}`, boxShadow: shadow }}>
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    {inputString.split('').map((char, index) => {
+                      let bgColor = inputBg, borderColor = isRetroTheme ? '#ffffff' : controlsBorder, tColor = textPrimary;
+                      if (index < currentIndex) { bgColor = '#065f46'; borderColor = '#10b981'; tColor = '#ffffff'; }
+                      else if (index === currentIndex && !isFinished) { bgColor = isRetroTheme ? '#fef08a' : '#2563eb'; borderColor = isRetroTheme ? '#ca8a04' : '#1d4ed8'; tColor = isRetroTheme ? '#854d0e' : '#ffffff'; }
+                      return <div key={index} style={{ width: '44px', height: '44px', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '20px', fontWeight: 'bold', backgroundColor: bgColor, border: `3px solid ${borderColor}`, color: tColor, borderRadius: '8px' }}>{char}</div>;
+                    })}
+                  </div>
+                </Panel>
+
+                {/* Floating "Read" panel, perfectly centered between nodes and bottom edge */}
+                <Panel position="bottom-center" style={{ marginBottom: '80px', zIndex: 100 }}>
+                  {actionMessage && (
+                      <div style={{ padding: '8px 16px', backgroundColor: isFinished ? (isAccepted ? '#065f46' : '#fee2e2') : (isRetroTheme ? '#1e3a8a' : '#dbeafe'), color: isFinished ? (isAccepted ? '#ffffff' : '#991b1b') : (isRetroTheme ? '#ffffff' : '#1e3a8a'), borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', border: '2px solid currentColor', boxShadow: shadow }}>
+                        {actionMessage}
+                      </div>
+                  )}
+                </Panel>
+
+                <Background color={isRetroTheme ? '#ffffff' : '#cbd5e1'} gap={20} size={2} />
+              </ReactFlow>
+            </div>
+          </div>
+
+          <div onMouseDown={handleMouseDown} style={{ width: '16px', margin: '0 -8px', zIndex: 50, cursor: 'col-resize', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: '6px', height: '40px', backgroundColor: isDragging ? controlsBorder : (isRetroTheme ? '#475569' : '#94a3b8'), borderRadius: '4px', transition: 'background-color 0.2s' }} />
+          </div>
+
+          <div style={{ width: `${100 - splitPercent}%`, minWidth: 0, height: '100%', display: 'flex', paddingLeft: '12px', boxSizing: 'border-box' }}>
+            <div style={{ flex: 1, backgroundColor: logBg, border: `3px solid ${logBorder}`, borderRadius: '12px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: shadow }}>
+              <div style={{ padding: '24px 24px 16px 24px', flexShrink: 0 }}>
+                <h3 style={{ fontSize: '16px', fontWeight: '900', color: isRetroTheme ? '#ffffff' : '#3730a3', textTransform: 'uppercase', letterSpacing: '1px', margin: '0', borderBottom: `2px solid ${logBorder}`, paddingBottom: '8px' }}>Execution Trace Outline</h3>
+              </div>
+
+              <div ref={logContainerRef} style={{ flex: 1, overflowY: 'auto', padding: '0 24px 24px 24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {history.map((state, idx) => {
+                  const isStart = idx === 0;
+                  const indentPixels = idx * 20;
+                  if (isStart) {
+                    return (
+                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginLeft: `${indentPixels}px` }}>
+                          <div style={{ fontWeight: 'bold', color: textPrimary, fontSize: '14px', width: '60px' }}>START:</div>
+                          <MiniNode id={state} isAccept={exampleMachine1.acceptStates.includes(state)} isActive={idx === history.length - 1} />
+                        </div>
+                    );
+                  }
+                  return (
+                      <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginLeft: `${indentPixels}px`, borderLeft: `3px solid ${logLine}`, paddingLeft: '16px', position: 'relative', flexWrap: 'nowrap' }}>
+                        <div style={{ position: 'absolute', left: '-3px', top: '-12px', height: '24px', width: '16px', borderBottom: `3px solid ${logLine}`, borderRadius: '0 0 0 8px' }} />
+                        <div style={{ fontWeight: 'bold', color: textPrimary, fontSize: '14px', width: '60px', flexShrink: 0 }}>STEP {idx}:</div>
+                        <MiniNode id={history[idx - 1]} isAccept={exampleMachine1.acceptStates.includes(history[idx - 1])} />
+                        <div style={{ color: textPrimary, fontSize: '18px', fontWeight: 'bold' }}>+</div>
+                        <div style={{ width: '32px', height: '32px', backgroundColor: '#d1fae5', border: '3px solid #10b981', color: '#065f46', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '16px', borderRadius: '6px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', flexShrink: 0 }}>
+                          {inputString[idx - 1]}
+                        </div>
+                        <div style={{ color: logLine, fontSize: '20px', fontWeight: 'bold' }}>➔</div>
+                        <MiniNode id={state} isAccept={exampleMachine1.acceptStates.includes(state)} isActive={idx === history.length - 1} />
+                      </div>
+                  );
+                })}
+
+                {isFinished && (
+                    <div style={{ marginTop: '12px', padding: '16px', backgroundColor: isAccepted ? '#ecfdf5' : '#fef2f2', border: `3px solid ${isAccepted ? '#10b981' : '#ef4444'}`, borderRadius: '12px', color: isAccepted ? '#065f46' : '#991b1b', textAlign: 'left', alignSelf: 'flex-start', maxWidth: '90%', boxShadow: shadow }}>
+                      <div style={{ fontWeight: '900', fontSize: '16px', marginBottom: '4px', textTransform: 'uppercase' }}>
+                        {isAccepted ? '✅ Accepted' : '❌ Rejected'}
+                      </div>
+                      <div style={{ fontSize: '14px', fontWeight: 'bold' }}>
+                        {isAccepted
+                            ? 'The machine successfully reached the final state (q0). This string contains an even number of zeros.'
+                            : 'The machine halted on state q1, which is not an accept state. This string contains an odd number of zeros.'}
+                      </div>
+                    </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  );
+}
+
+export default function WrappedFA() {
+  return (
+      <ReactFlowProvider>
+        <AutomataContent />
+      </ReactFlowProvider>
+  );
+}
