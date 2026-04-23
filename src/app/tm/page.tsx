@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, memo } from 'react';
 import {
-    ReactFlow, Background, Panel, BaseEdge, CoordinateExtent,
+    ReactFlow, Background, Panel, BaseEdge,
     EdgeLabelRenderer, Position, Node, Edge, useReactFlow, Handle, ReactFlowProvider
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -16,7 +16,6 @@ const AutoFitView = ({ splitPercent }: { splitPercent: number }) => {
     return null;
 };
 
-// Nodes increased to 90px!
 const CustomNode = memo(({ data }: any) => (
     <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <div style={{
@@ -80,20 +79,15 @@ const CustomCurveEdge = ({ sourceX, sourceY, targetX, targetY, source, target, d
         const dx = targetX - sourceX;
         const dy = targetY - sourceY;
         const dist = Math.sqrt(dx * dx + dy * dy);
-
         const curve = data.curve || -90;
-
         const midX = sourceX + dx / 2;
         const midY = sourceY + dy / 2;
         const nx = -dy / dist;
         const ny = dx / dist;
-
         const cx = midX + nx * curve;
         const cy = midY + ny * curve;
-
         const angleStart = Math.atan2(cy - sourceY, cx - sourceX);
         const start = getPointOnCircle(sourceX, sourceY, radius, angleStart);
-
         const angleEnd = Math.atan2(cy - targetY, cx - targetX);
         const end = getPointOnCircle(targetX, targetY, radius, angleEnd);
 
@@ -166,7 +160,6 @@ function TMContent() {
     const controlsBorder = isRetroTheme ? '#38bdf8' : '#0ea5e9';
     const canvasBg = isRetroTheme ? '#000000' : '#ffffff';
     const canvasBorder = isRetroTheme ? '#475569' : '#94a3b8';
-    const tapeBg = isRetroTheme ? '#4c0519' : '#fff1f2';
     const tapeBorder = isRetroTheme ? '#fb7185' : '#f43f5e';
     const logBg = isRetroTheme ? '#1e1b4b' : '#ffffff';
     const logBorder = isRetroTheme ? '#818cf8' : '#6366f1';
@@ -178,7 +171,6 @@ function TMContent() {
     const [playbackSpeed, setPlaybackSpeed] = useState(800);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isCrashed, setIsCrashed] = useState(false);
-
     const [splitPercent, setSplitPercent] = useState(65);
     const [isDragging, setIsDragging] = useState(false);
     const splitContainerRef = useRef<HTMLDivElement>(null);
@@ -234,7 +226,6 @@ function TMContent() {
         }
     }, [history.length, isAccepted, isCrashed]);
 
-    // Space nodes slightly more for 90px width
     const nodes: Node[] = [
         { id: 'start-dummy', type: 'custom', position: { x: 50, y: 250 }, data: { label: '' } },
         { id: 'q0', type: 'custom', position: { x: 150, y: 250 }, data: { label: 'q0' } },
@@ -302,12 +293,7 @@ function TMContent() {
         const char = currentSnapshot.tape[currentSnapshot.headPos];
         const transition = tmMachine.transitions.find(t => t.from === currentSnapshot.state && t.read === char);
 
-        let edgeIdentifier = transition ? `e-${tmMachine.transitions.indexOf(transition)}` : null;
-
-        if(edgeIdentifier === 'e-0' || edgeIdentifier === 'e-1') edgeIdentifier = 'e-0';
-        if(edgeIdentifier === 'e-2') edgeIdentifier = 'e-1';
-        if(edgeIdentifier === 'e-3' || edgeIdentifier === 'e-4') edgeIdentifier = 'e-2';
-        if(edgeIdentifier === 'e-5') edgeIdentifier = 'e-3';
+        let edgeIdentifier = transition ? getEdgeId(transition) : null;
 
         if (transition) {
             let newTape = [...currentSnapshot.tape];
@@ -394,14 +380,11 @@ function TMContent() {
         .react-flow__handle { opacity: 0 !important; } 
       `}</style>
 
-            {/* Header Controls */}
             <div style={{ padding: '24px 24px 32px 24px', backgroundColor: controlsBg, borderBottom: `4px solid ${controlsBorder}`, zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0, boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}>
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', flexWrap: 'wrap', justifyContent: 'flex-start', width: '100%' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                            <label style={{ marginTop: '10px', fontSize: '13px', fontWeight: 'bold', color: textPrimary, textTransform: 'uppercase', letterSpacing: '1px' }}>
-                                Initial Tape Content:
-                            </label>
+                            <label style={{ marginTop: '10px', fontSize: '13px', fontWeight: 'bold', color: textPrimary, textTransform: 'uppercase', letterSpacing: '1px' }}>Initial Tape Content:</label>
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
                                 <input
                                     value={inputString}
@@ -440,17 +423,9 @@ function TMContent() {
                                 fitView
                                 fitViewOptions={{ padding: 0.3 }}
                                 colorMode={isRetroTheme ? "dark" : "light"}
-                                panOnDrag={false}
-                                zoomOnScroll={false}
-                                zoomOnPinch={false}
-                                zoomOnDoubleClick={false}
-                                nodesDraggable={false}
-                                nodesConnectable={false}
-                                elementsSelectable={false}
+                                panOnDrag={false} zoomOnScroll={false} zoomOnPinch={false} zoomOnDoubleClick={false} nodesDraggable={false} nodesConnectable={false} elementsSelectable={false}
                             >
                                 <AutoFitView splitPercent={splitPercent} />
-
-                                {/* TIGHTENED PADDING AND REMOVED TITLE TEXT */}
                                 <Panel position="top-center" style={{ marginTop: '20px', backgroundColor: controlsBg, padding: '12px 16px', borderRadius: '12px', border: `3px solid ${controlsBorder}`, width: '100%', maxWidth: '750px', overflowX: 'auto', boxShadow: shadow }}>
                                     <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
                                         {currentSnapshot.tape.map((char, index) => {
@@ -458,20 +433,13 @@ function TMContent() {
                                             if (Math.abs(index - currentSnapshot.headPos) > 7) return null;
                                             return (
                                                 <div key={index} style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                                    <div style={{ width: '44px', height: '44px', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '20px', fontWeight: 'bold', backgroundColor: isHead ? (isRetroTheme ? '#fef08a' : '#2563eb') : inputBg, border: `3px solid ${isHead ? (isRetroTheme ? '#ca8a04' : '#1d4ed8') : (isRetroTheme ? '#ffffff' : tapeBorder)}`, color: isHead ? (isRetroTheme ? '#854d0e' : '#ffffff') : (char === 'Δ' ? textSecondary : textPrimary), borderRadius: '8px', transition: 'all 0.2s', boxShadow: isHead && isRetroTheme ? '0 0 15px rgba(202, 138, 4, 0.4)' : 'none', zIndex: isHead ? 10 : 1 }}>
-                                                        {char}
-                                                    </div>
-                                                    {isHead && (
-                                                        <div style={{ position: 'absolute', bottom: '-25px', color: isRetroTheme ? '#fef08a' : '#2563eb', fontSize: '20px', animation: isRetroTheme ? 'bounce 1s infinite' : 'none', fontWeight: 'bold' }}>
-                                                            ⬆
-                                                        </div>
-                                                    )}
+                                                    <div style={{ width: '44px', height: '44px', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '20px', fontWeight: 'bold', backgroundColor: isHead ? (isRetroTheme ? '#fef08a' : '#2563eb') : inputBg, border: `3px solid ${isHead ? (isRetroTheme ? '#ca8a04' : '#1d4ed8') : (isRetroTheme ? '#ffffff' : tapeBorder)}`, color: isHead ? (isRetroTheme ? '#854d0e' : '#ffffff') : (char === 'Δ' ? textSecondary : textPrimary), borderRadius: '8px', transition: 'all 0.2s', boxShadow: isHead && isRetroTheme ? '0 0 15px rgba(202, 138, 4, 0.4)' : 'none', zIndex: isHead ? 10 : 1 }}>{char}</div>
+                                                    {isHead && <div style={{ position: 'absolute', bottom: '-25px', color: isRetroTheme ? '#fef08a' : '#2563eb', fontSize: '20px', animation: isRetroTheme ? 'bounce 1s infinite' : 'none', fontWeight: 'bold' }}>⬆</div>}
                                                 </div>
                                             );
                                         })}
                                     </div>
                                 </Panel>
-
                                 <Panel position="bottom-center" style={{ marginBottom: '80px', zIndex: 100 }}>
                                     {actionMessage && (
                                         <div style={{ padding: '8px 16px', backgroundColor: (isAccepted || isCrashed) ? (isAccepted ? '#065f46' : '#fee2e2') : (isRetroTheme ? '#1e3a8a' : '#dbeafe'), color: (isAccepted || isCrashed) ? (isAccepted ? '#ffffff' : '#991b1b') : (isRetroTheme ? '#ffffff' : '#1e3a8a'), borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', border: '2px solid currentColor', boxShadow: shadow }}>
@@ -479,7 +447,6 @@ function TMContent() {
                                         </div>
                                     )}
                                 </Panel>
-
                                 <Background color={isRetroTheme ? '#ffffff' : '#cbd5e1'} gap={20} size={2} />
                             </ReactFlow>
                         </div>
@@ -495,7 +462,6 @@ function TMContent() {
                         <div style={{ padding: '24px 24px 16px 24px', flexShrink: 0 }}>
                             <h3 style={{ fontSize: '16px', fontWeight: '900', color: isRetroTheme ? '#ffffff' : '#3730a3', textTransform: 'uppercase', letterSpacing: '1px', margin: '0', borderBottom: `2px solid ${logBorder}`, paddingBottom: '8px' }}>Execution Trace Outline</h3>
                         </div>
-
                         <div ref={logContainerRef} style={{ flex: 1, overflowY: 'auto', padding: '0 24px 24px 24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             {history.map((snap, idx) => {
                                 const isStart = idx === 0;
@@ -512,9 +478,7 @@ function TMContent() {
                                         <div style={{ fontWeight: 'bold', color: textPrimary, fontSize: '14px', width: '60px', flexShrink: 0 }}>STEP {idx}:</div>
                                         <MiniNode id={history[idx - 1].state} isAccept={tmMachine.acceptStates.includes(history[idx - 1].state)} />
                                         <div style={{ color: textPrimary, fontSize: '18px', fontWeight: 'bold' }}>+</div>
-                                        <div style={{ width: '32px', height: '32px', backgroundColor: '#d1fae5', border: '3px solid #10b981', color: '#065f46', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '16px', borderRadius: '6px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', flexShrink: 0 }}>
-                                            {snap.readChar}
-                                        </div>
+                                        <div style={{ width: '32px', height: '32px', backgroundColor: '#d1fae5', border: '3px solid #10b981', color: '#065f46', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '16px', borderRadius: '6px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', flexShrink: 0 }}>{snap.readChar}</div>
                                         <div style={{ color: textPrimary, fontSize: '16px', fontWeight: 'bold' }}>➔</div>
                                         <div style={{ display: 'flex', gap: '8px' }}>
                                             <MiniActionBox title="Write" val={snap.writeChar} color="#10b981" />
@@ -525,7 +489,6 @@ function TMContent() {
                                     </div>
                                 );
                             })}
-
                             {isAccepted && (
                                 <div style={{ marginTop: '12px', padding: '16px', backgroundColor: '#ecfdf5', border: `3px solid #10b981`, borderRadius: '12px', color: '#065f46', textAlign: 'left', alignSelf: 'flex-start', maxWidth: '90%', boxShadow: shadow }}>
                                     <div style={{ fontWeight: '900', fontSize: '16px', marginBottom: '4px', textTransform: 'uppercase' }}>✅ Accepted</div>

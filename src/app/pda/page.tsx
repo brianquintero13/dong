@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, memo } from 'react';
 import {
-    ReactFlow, Background, Panel, CoordinateExtent, BaseEdge,
+    ReactFlow, Background, Panel, BaseEdge,
     EdgeLabelRenderer, Position, Node, Edge, useReactFlow, ReactFlowProvider, Handle
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -16,7 +16,6 @@ const AutoFitView = ({ splitPercent }: { splitPercent: number }) => {
     return null;
 };
 
-// Nodes increased to 90px
 const CustomNode = memo(({ data }: any) => (
     <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <div style={{
@@ -71,8 +70,6 @@ const CustomCurveEdge = ({ sourceX, sourceY, targetX, targetY, source, target, d
 
         const start = getPointOnCircle(sourceX, sourceY, radius, startAngle);
         const end = getPointOnCircle(sourceX, sourceY, radius, endAngle);
-
-        // Pushed control Y further out for larger node
         const controlY = sourceY + (isBottom ? 150 : -150);
 
         edgePath = `M ${start.x} ${start.y} C ${sourceX - 70} ${controlY}, ${sourceX + 70} ${controlY}, ${end.x} ${end.y}`;
@@ -82,15 +79,11 @@ const CustomCurveEdge = ({ sourceX, sourceY, targetX, targetY, source, target, d
         const dx = targetX - sourceX, dy = targetY - sourceY;
         const dist = Math.sqrt(dx * dx + dy * dy);
         const curve = data.curve || -90;
-
         const midX = sourceX + dx / 2, midY = sourceY + dy / 2;
         const nx = -dy / dist, ny = dx / dist;
-
         const cx = midX + nx * curve, cy = midY + ny * curve;
-
         const angleStart = Math.atan2(cy - sourceY, cx - sourceX);
         const start = getPointOnCircle(sourceX, sourceY, radius, angleStart);
-
         const angleEnd = Math.atan2(cy - targetY, cx - targetX);
         const end = getPointOnCircle(targetX, targetY, radius, angleEnd);
 
@@ -202,7 +195,6 @@ function PDAContent() {
         }
     }, [history.length, isFinishedReading, isAccepted, isCrashed]);
 
-    // Space nodes slightly more (250px apart instead of 200) to account for 90px width
     const nodes: Node[] = [
         { id: 'start-dummy', type: 'custom', position: { x: 0, y: 200 }, data: { label: '' } },
         { id: 'q0', type: 'custom', position: { x: 150, y: 200 }, data: { label: 'q0' } },
@@ -253,7 +245,7 @@ function PDAContent() {
         { id: 'e-1', source: 'q0', target: 'q1', type: 'customCurve', data: { label: '1, 0 → ε', curve: -60 } },
         { id: 'e-2', source: 'q1', target: 'q1', type: 'customCurve', data: { label: '1, 0 → ε', loopDirection: 'bottom' } },
         { id: 'e-3', source: 'q1', target: 'q2', type: 'customCurve', data: { label: 'ε, Z → Z', curve: -60 } },
-        { id: 'e-4', source: 'q0', target: 'q2', type: 'customCurve', data: { label: 'ε, Z → Z', curve: -160 } } // Huge arc over the top!
+        { id: 'e-4', source: 'q0', target: 'q2', type: 'customCurve', data: { label: 'ε, Z → Z', curve: -160 } }
     ].map(e => {
         let isEdgeActive = false;
         if (e.id === 'e-start') {
@@ -324,7 +316,7 @@ function PDAContent() {
     );
 
     const MiniStackAction = ({ type, char }: { type: 'Pop' | 'Push', char: string }) => (
-        <div style={{ padding: '4px 8px', backgroundColor: isRetroTheme ? '#1f2937' : '#ffffff', border: `3px solid ${color}`, color: textPrimary, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '12px', borderRadius: '6px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', flexShrink: 0 }}>
+        <div style={{ padding: '4px 8px', backgroundColor: isRetroTheme ? '#1f2937' : '#ffffff', border: `3px solid ${controlsBorder}`, color: textPrimary, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '12px', borderRadius: '6px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', flexShrink: 0 }}>
             {type}: {char === '' ? 'ε' : char}
         </div>
     );
@@ -358,9 +350,7 @@ function PDAContent() {
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', flexWrap: 'wrap', justifyContent: 'flex-start', width: '100%' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                            <label style={{ marginTop: '10px', fontSize: '13px', fontWeight: 'bold', color: textPrimary, textTransform: 'uppercase', letterSpacing: '1px' }}>
-                                Input Sequence:
-                            </label>
+                            <label style={{ marginTop: '10px', fontSize: '13px', fontWeight: 'bold', color: textPrimary, textTransform: 'uppercase', letterSpacing: '1px' }}>Input Sequence:</label>
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
                                 <input
                                     value={inputString}
@@ -398,17 +388,9 @@ function PDAContent() {
                                 fitView
                                 fitViewOptions={{ padding: 0.3 }}
                                 colorMode={isRetroTheme ? "dark" : "light"}
-                                panOnDrag={false}
-                                zoomOnScroll={false}
-                                zoomOnPinch={false}
-                                zoomOnDoubleClick={false}
-                                nodesDraggable={false}
-                                nodesConnectable={false}
-                                elementsSelectable={false}
+                                panOnDrag={false} zoomOnScroll={false} zoomOnPinch={false} zoomOnDoubleClick={false} nodesDraggable={false} nodesConnectable={false} elementsSelectable={false}
                             >
                                 <AutoFitView splitPercent={splitPercent} />
-
-                                {/* TIGHTENED PADDING AND REMOVED TITLE TEXT */}
                                 <Panel position="top-center" style={{ marginTop: '20px', backgroundColor: controlsBg, padding: '12px 16px', borderRadius: '12px', border: `3px solid ${controlsBorder}`, width: '100%', maxWidth: '750px', overflowX: 'auto', boxShadow: shadow }}>
                                     <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
                                         {inputString.split('').map((char, index) => {
@@ -419,7 +401,6 @@ function PDAContent() {
                                         })}
                                     </div>
                                 </Panel>
-
                                 <Panel position="bottom-center" style={{ marginBottom: '80px', zIndex: 100 }}>
                                     {actionMessage && (
                                         <div style={{ padding: '8px 16px', backgroundColor: (isAccepted || isCrashed || isFinishedReading) ? (isAccepted ? '#065f46' : '#fee2e2') : (isRetroTheme ? '#1e3a8a' : '#dbeafe'), color: (isAccepted || isCrashed || isFinishedReading) ? (isAccepted ? '#ffffff' : '#991b1b') : (isRetroTheme ? '#ffffff' : '#1e3a8a'), borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', border: '2px solid currentColor', boxShadow: shadow }}>
@@ -427,11 +408,9 @@ function PDAContent() {
                                         </div>
                                     )}
                                 </Panel>
-
                                 <Background color={isRetroTheme ? '#ffffff' : '#cbd5e1'} gap={20} size={2} />
                             </ReactFlow>
                         </div>
-
                         <div style={{ width: '90px', height: '100%', flexShrink: 0, backgroundColor: stackBg, borderLeft: `4px solid ${stackBorder}`, display: 'flex', flexDirection: 'column', alignItems: 'center', overflow: 'hidden' }}>
                             <div style={{ padding: '16px 8px 0 8px', flexShrink: 0, width: '100%', textAlign: 'center' }}>
                                 <h3 style={{ fontSize: '14px', fontWeight: '900', color: isRetroTheme ? '#ffffff' : '#064e3b', marginBottom: '16px', textTransform: 'uppercase' }}>Stack</h3>
@@ -441,9 +420,7 @@ function PDAContent() {
                                     {currentSnapshot.stack.map((item, index) => {
                                         const isTop = index === currentSnapshot.stack.length - 1;
                                         return (
-                                            <div key={index} style={{ width: '100%', height: '28px', flexShrink: 0, backgroundColor: isTop ? (isRetroTheme ? '#fef08a' : '#2563eb') : (isRetroTheme ? '#374151' : '#ffffff'), color: isTop ? (isRetroTheme ? '#854d0e' : '#ffffff') : textPrimary, border: `2px solid ${isTop ? (isRetroTheme ? '#ca8a04' : '#1d4ed8') : (isRetroTheme ? '#ffffff' : '#cbd5e1')}`, marginBottom: '4px', display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 'bold', fontSize: '14px', borderRadius: '4px' }}>
-                                                {item}
-                                            </div>
+                                            <div key={index} style={{ width: '100%', height: '28px', flexShrink: 0, backgroundColor: isTop ? (isRetroTheme ? '#fef08a' : '#2563eb') : (isRetroTheme ? '#374151' : '#ffffff'), color: isTop ? (isRetroTheme ? '#854d0e' : '#ffffff') : textPrimary, border: `2px solid ${isTop ? (isRetroTheme ? '#ca8a04' : '#1d4ed8') : (isRetroTheme ? '#ffffff' : '#cbd5e1')}`, marginBottom: '4px', display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 'bold', fontSize: '14px', borderRadius: '4px' }}>{item}</div>
                                         );
                                     })}
                                 </div>
@@ -462,7 +439,6 @@ function PDAContent() {
                         <div style={{ padding: '24px 24px 16px 24px', flexShrink: 0 }}>
                             <h3 style={{ fontSize: '16px', fontWeight: '900', color: isRetroTheme ? '#ffffff' : '#3730a3', textTransform: 'uppercase', letterSpacing: '1px', margin: '0', borderBottom: `2px solid ${logBorder}`, paddingBottom: '8px' }}>Execution Trace Outline</h3>
                         </div>
-
                         <div ref={logContainerRef} style={{ flex: 1, overflowY: 'auto', padding: '0 24px 24px 24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             {history.map((snap, idx) => {
                                 const isStart = idx === 0;
@@ -479,9 +455,7 @@ function PDAContent() {
                                         <div style={{ fontWeight: 'bold', color: textPrimary, fontSize: '14px', width: '60px', flexShrink: 0 }}>STEP {idx}:</div>
                                         <MiniNode id={history[idx - 1].state} isAccept={pdaMachine.acceptStates.includes(history[idx - 1].state)} />
                                         <div style={{ color: textPrimary, fontSize: '18px', fontWeight: 'bold' }}>+</div>
-                                        <div style={{ width: '32px', height: '32px', backgroundColor: '#d1fae5', border: '3px solid #10b981', color: '#065f46', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '16px', borderRadius: '6px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', flexShrink: 0 }}>
-                                            {snap.readChar === '' ? 'ε' : snap.readChar}
-                                        </div>
+                                        <div style={{ width: '32px', height: '32px', backgroundColor: '#d1fae5', border: '3px solid #10b981', color: '#065f46', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '16px', borderRadius: '6px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', flexShrink: 0 }}>{snap.readChar === '' ? 'ε' : snap.readChar}</div>
                                         <div style={{ color: textPrimary, fontSize: '18px', fontWeight: 'bold' }}>+</div>
                                         <div style={{ display: 'flex', gap: '4px' }}>
                                             <MiniStackAction type="Pop" char={snap.popped} />
@@ -492,7 +466,6 @@ function PDAContent() {
                                     </div>
                                 );
                             })}
-
                             {isAccepted && (
                                 <div style={{ marginTop: '12px', padding: '16px', backgroundColor: '#ecfdf5', border: `3px solid #10b981`, borderRadius: '12px', color: '#065f46', textAlign: 'left', alignSelf: 'flex-start', maxWidth: '90%', boxShadow: shadow }}>
                                     <div style={{ fontWeight: '900', fontSize: '16px', marginBottom: '4px', textTransform: 'uppercase' }}>✅ Accepted</div>

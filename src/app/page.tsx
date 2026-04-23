@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, memo } from 'react';
 import {
-  ReactFlow, Background, Panel, CoordinateExtent,
+  ReactFlow, Background, Panel,
   BaseEdge, EdgeLabelRenderer, Position, Node, Edge,
   useReactFlow, ReactFlowProvider, Handle
 } from '@xyflow/react';
@@ -17,7 +17,6 @@ const AutoFitView = ({ splitPercent }: { splitPercent: number }) => {
   return null;
 };
 
-// Nodes increased to 90px!
 const CustomNode = memo(({ data }: any) => (
     <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <div style={{
@@ -54,7 +53,6 @@ const getPointOnCircle = (cx: number, cy: number, r: number, a: number) => ({
 
 const CustomSnakeEdge = ({ sourceX, sourceY, targetX, targetY, source, target, data }: any) => {
   const { isRetroTheme } = useTheme();
-  // Radius updated to 45 (half of 90px) to match the new larger nodes
   const radius = 45;
 
   let edgePath = '';
@@ -72,7 +70,6 @@ const CustomSnakeEdge = ({ sourceX, sourceY, targetX, targetY, source, target, d
     const start = getPointOnCircle(sourceX, sourceY, radius, startAngle);
     const end = getPointOnCircle(sourceX, sourceY, radius, endAngle);
 
-    // Adjusted control points for the larger self-loop
     edgePath = `M ${start.x} ${start.y} C ${sourceX - 70} ${sourceY - 140}, ${sourceX + 70} ${sourceY - 140}, ${end.x} ${end.y}`;
     labelX = sourceX;
     labelY = sourceY - 105;
@@ -80,20 +77,15 @@ const CustomSnakeEdge = ({ sourceX, sourceY, targetX, targetY, source, target, d
     const dx = targetX - sourceX;
     const dy = targetY - sourceY;
     const dist = Math.sqrt(dx * dx + dy * dy);
-
     const curve = data.curve || -90;
-
     const midX = sourceX + dx / 2;
     const midY = sourceY + dy / 2;
     const nx = -dy / dist;
     const ny = dx / dist;
-
     const cx = midX + nx * curve;
     const cy = midY + ny * curve;
-
     const angleStart = Math.atan2(cy - sourceY, cx - sourceX);
     const start = getPointOnCircle(sourceX, sourceY, radius, angleStart);
-
     const angleEnd = Math.atan2(cy - targetY, cx - targetX);
     const end = getPointOnCircle(targetX, targetY, radius, angleEnd);
 
@@ -151,7 +143,6 @@ function AutomataContent() {
   const [history, setHistory] = useState<string[]>([exampleMachine1.startState]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(800);
-
   const [splitPercent, setSplitPercent] = useState(65);
   const [isDragging, setIsDragging] = useState(false);
   const splitContainerRef = useRef<HTMLDivElement>(null);
@@ -290,7 +281,21 @@ function AutomataContent() {
   };
 
   const MiniNode = ({ id, isAccept, isActive }: { id: string, isAccept: boolean, isActive?: boolean }) => (
-      <div style={{ width: '40px', height: '40px', borderRadius: '50%', border: isAccept ? '4px double' : '2px solid', borderColor: isActive ? (isRetroTheme ? '#fef08a' : '#1d4ed8') : (isRetroTheme ? '#ffffff' : '#cbd5e1'), backgroundColor: isActive ? (isRetroTheme ? '#854d0e' : '#2563eb') : (isRetroTheme ? '#1f2937' : '#ffffff'), color: isActive ? (isRetroTheme ? '#fef08a' : '#ffffff') : textPrimary, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px', boxShadow: isActive ? shadow : 'none' }}>
+      <div style={{
+        width: '40px',
+        height: '40px',
+        borderRadius: '50%',
+        border: isAccept ? '4px double' : '2px solid',
+        borderColor: isActive ? (isRetroTheme ? '#fef08a' : '#1d4ed8') : (isRetroTheme ? '#ffffff' : '#cbd5e1'),
+        backgroundColor: isActive ? (isRetroTheme ? '#854d0e' : '#2563eb') : (isRetroTheme ? '#1f2937' : '#ffffff'),
+        color: isActive ? (isRetroTheme ? '#fef08a' : '#ffffff') : textPrimary,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontWeight: 'bold',
+        fontSize: '14px',
+        boxShadow: isActive ? shadow : 'none'
+      }}>
         {id}
       </div>
   );
@@ -313,15 +318,11 @@ function AutomataContent() {
         @keyframes node-pulse-green { 0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.8); border-color: #10b981 !important; } 70% { box-shadow: 0 0 0 20px rgba(16,185,129,0); border-color: #10b981 !important; } 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); border-color: #10b981 !important; } }
       `}</style>
 
-        {/* Header Controls */}
         <div style={{ padding: '24px 24px 32px 24px', backgroundColor: controlsBg, borderBottom: `4px solid ${controlsBorder}`, zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0, boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}>
           <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', flexWrap: 'wrap', justifyContent: 'flex-start', width: '100%' }}>
-
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                <label style={{ marginTop: '10px', fontSize: '13px', fontWeight: 'bold', color: textPrimary, textTransform: 'uppercase', letterSpacing: '1px' }}>
-                  Input Sequence:
-                </label>
+                <label style={{ marginTop: '10px', fontSize: '13px', fontWeight: 'bold', color: textPrimary, textTransform: 'uppercase', letterSpacing: '1px' }}>Input Sequence:</label>
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                   <input
                       value={inputString}
@@ -353,9 +354,7 @@ function AutomataContent() {
           </div>
         </div>
 
-        {/* Splitter Zone */}
         <div ref={splitContainerRef} style={{ display: 'flex', flexDirection: 'row', flex: 1, padding: '24px', width: '100%', minHeight: 0, overflow: 'hidden' }}>
-
           <div style={{ width: `${splitPercent}%`, minWidth: 0, height: '100%', display: 'flex', paddingRight: '12px', boxSizing: 'border-box' }}>
             <div style={{ flex: 1, backgroundColor: canvasBg, position: 'relative', border: `3px solid ${canvasBorder}`, borderRadius: '12px', overflow: 'hidden', boxShadow: shadow }}>
               <ReactFlow
@@ -369,8 +368,6 @@ function AutomataContent() {
                   panOnDrag={false} zoomOnScroll={false} zoomOnPinch={false} zoomOnDoubleClick={false} nodesDraggable={false} nodesConnectable={false} elementsSelectable={false}
               >
                 <AutoFitView splitPercent={splitPercent} />
-
-                {/* TIGHTENED PADDING AND REMOVED TITLE TEXT */}
                 <Panel position="top-center" style={{ marginTop: '20px', backgroundColor: controlsBg, padding: '12px 16px', borderRadius: '12px', border: `3px solid ${controlsBorder}`, boxShadow: shadow }}>
                   <div style={{ display: 'flex', gap: '6px' }}>
                     {inputString.split('').map((char, index) => {
@@ -381,8 +378,6 @@ function AutomataContent() {
                     })}
                   </div>
                 </Panel>
-
-                {/* Floating "Read" panel, perfectly centered between nodes and bottom edge */}
                 <Panel position="bottom-center" style={{ marginBottom: '80px', zIndex: 100 }}>
                   {actionMessage && (
                       <div style={{ padding: '8px 16px', backgroundColor: isFinished ? (isAccepted ? '#065f46' : '#fee2e2') : (isRetroTheme ? '#1e3a8a' : '#dbeafe'), color: isFinished ? (isAccepted ? '#ffffff' : '#991b1b') : (isRetroTheme ? '#ffffff' : '#1e3a8a'), borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', border: '2px solid currentColor', boxShadow: shadow }}>
@@ -390,7 +385,6 @@ function AutomataContent() {
                       </div>
                   )}
                 </Panel>
-
                 <Background color={isRetroTheme ? '#ffffff' : '#cbd5e1'} gap={20} size={2} />
               </ReactFlow>
             </div>
@@ -405,7 +399,6 @@ function AutomataContent() {
               <div style={{ padding: '24px 24px 16px 24px', flexShrink: 0 }}>
                 <h3 style={{ fontSize: '16px', fontWeight: '900', color: isRetroTheme ? '#ffffff' : '#3730a3', textTransform: 'uppercase', letterSpacing: '1px', margin: '0', borderBottom: `2px solid ${logBorder}`, paddingBottom: '8px' }}>Execution Trace Outline</h3>
               </div>
-
               <div ref={logContainerRef} style={{ flex: 1, overflowY: 'auto', padding: '0 24px 24px 24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {history.map((state, idx) => {
                   const isStart = idx === 0;
@@ -424,25 +417,16 @@ function AutomataContent() {
                         <div style={{ fontWeight: 'bold', color: textPrimary, fontSize: '14px', width: '60px', flexShrink: 0 }}>STEP {idx}:</div>
                         <MiniNode id={history[idx - 1]} isAccept={exampleMachine1.acceptStates.includes(history[idx - 1])} />
                         <div style={{ color: textPrimary, fontSize: '18px', fontWeight: 'bold' }}>+</div>
-                        <div style={{ width: '32px', height: '32px', backgroundColor: '#d1fae5', border: '3px solid #10b981', color: '#065f46', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '16px', borderRadius: '6px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', flexShrink: 0 }}>
-                          {inputString[idx - 1]}
-                        </div>
+                        <div style={{ width: '32px', height: '32px', backgroundColor: '#d1fae5', border: '3px solid #10b981', color: '#065f46', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '16px', borderRadius: '6px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', flexShrink: 0 }}>{inputString[idx - 1]}</div>
                         <div style={{ color: logLine, fontSize: '20px', fontWeight: 'bold' }}>➔</div>
                         <MiniNode id={state} isAccept={exampleMachine1.acceptStates.includes(state)} isActive={idx === history.length - 1} />
                       </div>
                   );
                 })}
-
                 {isFinished && (
                     <div style={{ marginTop: '12px', padding: '16px', backgroundColor: isAccepted ? '#ecfdf5' : '#fef2f2', border: `3px solid ${isAccepted ? '#10b981' : '#ef4444'}`, borderRadius: '12px', color: isAccepted ? '#065f46' : '#991b1b', textAlign: 'left', alignSelf: 'flex-start', maxWidth: '90%', boxShadow: shadow }}>
-                      <div style={{ fontWeight: '900', fontSize: '16px', marginBottom: '4px', textTransform: 'uppercase' }}>
-                        {isAccepted ? '✅ Accepted' : '❌ Rejected'}
-                      </div>
-                      <div style={{ fontSize: '14px', fontWeight: 'bold' }}>
-                        {isAccepted
-                            ? 'The machine successfully reached the final state (q0). This string contains an even number of zeros.'
-                            : 'The machine halted on state q1, which is not an accept state. This string contains an odd number of zeros.'}
-                      </div>
+                      <div style={{ fontWeight: '900', fontSize: '16px', marginBottom: '4px', textTransform: 'uppercase' }}>{isAccepted ? '✅ Accepted' : '❌ Rejected'}</div>
+                      <div style={{ fontSize: '14px', fontWeight: 'bold' }}>{isAccepted ? 'The machine successfully reached the final state (q0). This string contains an even number of zeros.' : 'The machine halted on state q1, which is not an accept state. This string contains an odd number of zeros.'}</div>
                     </div>
                 )}
               </div>
