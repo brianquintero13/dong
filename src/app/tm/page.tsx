@@ -65,7 +65,7 @@ const CustomCurveEdge = ({ sourceX, sourceY, targetX, targetY, source, target, d
         const end = getPointOnCircle(targetX, targetY, radius, Math.PI);
         edgePath = `M ${sourceX} ${sourceY} L ${end.x} ${end.y}`;
         labelX = sourceX + (end.x - sourceX) / 2;
-        labelY = sourceY - 14;
+        labelY = sourceY - 26;
     } else if (source === target) {
         const startAngle = -Math.PI * 0.7;
         const endAngle = -Math.PI * 0.3;
@@ -74,29 +74,36 @@ const CustomCurveEdge = ({ sourceX, sourceY, targetX, targetY, source, target, d
 
         edgePath = `M ${start.x} ${start.y} C ${sourceX - 70} ${sourceY - 140}, ${sourceX + 70} ${sourceY - 140}, ${end.x} ${end.y}`;
         labelX = sourceX;
-        labelY = sourceY - 105;
+        labelY = sourceY - 155;
     } else {
         const dx = targetX - sourceX;
         const dy = targetY - sourceY;
         const dist = Math.sqrt(dx * dx + dy * dy);
+
         const curve = data.curve || -90;
+
         const midX = sourceX + dx / 2;
         const midY = sourceY + dy / 2;
         const nx = -dy / dist;
         const ny = dx / dist;
+
         const cx = midX + nx * curve;
         const cy = midY + ny * curve;
+
         const angleStart = Math.atan2(cy - sourceY, cx - sourceX);
         const start = getPointOnCircle(sourceX, sourceY, radius, angleStart);
+
         const angleEnd = Math.atan2(cy - targetY, cx - targetX);
         const end = getPointOnCircle(targetX, targetY, radius, angleEnd);
 
         edgePath = `M ${start.x} ${start.y} Q ${cx} ${cy} ${end.x} ${end.y}`;
-        labelX = midX + nx * (curve * 0.5);
-        labelY = midY + ny * (curve * 0.5);
+
+        const offset = curve < 0 ? -24 : 24;
+        labelX = midX + nx * (curve * 0.5 + offset);
+        labelY = midY + ny * (curve * 0.5 + offset);
     }
 
-    const strokeColor = data.isActive ? (isRetroTheme ? '#38bdf8' : '#2563eb') : '#94a3b8';
+    const strokeColor = data.isActive ? (isRetroTheme ? '#38bdf8' : '#bfdbfe') : '#94a3b8';
     const markerId = `arrow-${source}-${target}-${data.isActive ? 'active' : 'idle'}`;
 
     return (
@@ -111,10 +118,12 @@ const CustomCurveEdge = ({ sourceX, sourceY, targetX, targetY, source, target, d
                 markerEnd={`url(#${markerId})`}
                 style={{ strokeWidth: data.isActive ? 4 : 2, stroke: strokeColor, fill: 'none' }}
             />
-            {isRetroTheme && data.isActive && (
+
+            {data.isActive && (
                 <g key={data.stepIndex}>
-                    <path d={edgePath} fill="none" stroke="#ffffff" strokeWidth="6" strokeDasharray="100 100" style={{ animation: `snake-draw ${data.speed}ms linear forwards` }} />
-                    <path d={edgePath} fill="none" stroke="#3b82f6" strokeWidth="3" strokeDasharray="100 100" style={{ animation: `snake-draw ${data.speed}ms linear forwards` }} />
+                    {/* Added explicit strokeDashoffset="100" to fix the animation start point */}
+                    <path d={edgePath} fill="none" stroke={isRetroTheme ? "#ffffff" : "#93c5fd"} strokeWidth="6" strokeDasharray="100" strokeDashoffset="100" pathLength="100" style={{ animation: `snake-draw ${data.speed}ms linear forwards` }} />
+                    <path d={edgePath} fill="none" stroke={isRetroTheme ? "#3b82f6" : "#2563eb"} strokeWidth="3" strokeDasharray="100" strokeDashoffset="100" pathLength="100" style={{ animation: `snake-draw ${data.speed}ms linear forwards` }} />
                 </g>
             )}
             <EdgeLabelRenderer>
@@ -168,7 +177,7 @@ function TMContent() {
     const shadow = isRetroTheme ? '0 0 20px rgba(56, 189, 248, 0.1)' : '0 8px 20px rgba(0,0,0,0.15)';
 
     const [inputString, setInputString] = useState('010');
-    const [playbackSpeed, setPlaybackSpeed] = useState(800);
+    const [playbackSpeed, setPlaybackSpeed] = useState(1100);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isCrashed, setIsCrashed] = useState(false);
     const [splitPercent, setSplitPercent] = useState(65);
@@ -227,14 +236,12 @@ function TMContent() {
     }, [history.length, isAccepted, isCrashed]);
 
     const nodes: Node[] = [
-        { id: 'start-dummy', type: 'custom', position: { x: 50, y: 250 }, data: { label: '' } },
-        { id: 'q0', type: 'custom', position: { x: 150, y: 250 }, data: { label: 'q0' } },
-        { id: 'q1', type: 'custom', position: { x: 400, y: 250 }, data: { label: 'q1' } },
-        { id: 'q2', type: 'custom', position: { x: 650, y: 250 }, data: { label: 'q2' } }
+        { id: 'start-dummy', type: 'custom', position: { x: 50, y: 200 }, data: { label: '' } },
+        { id: 'q0', type: 'custom', position: { x: 150, y: 200 }, data: { label: 'q0' } },
+        { id: 'q1', type: 'custom', position: { x: 400, y: 200 }, data: { label: 'q1' } },
+        { id: 'q2', type: 'custom', position: { x: 650, y: 200 }, data: { label: 'q2' } }
     ].map((node) => {
-        if (node.id === 'start-dummy') {
-            return { ...node, style: { opacity: 0, pointerEvents: 'none' } };
-        }
+        if (node.id === 'start-dummy') return { ...node, style: { opacity: 0, pointerEvents: 'none' } };
 
         const isActive = node.id === currentSnapshot.state;
         let animationStyle = 'none';
@@ -413,8 +420,31 @@ function TMContent() {
 
             <div ref={splitContainerRef} style={{ display: 'flex', flexDirection: 'row', flex: 1, padding: '24px', width: '100%', minHeight: 0, overflow: 'hidden' }}>
                 <div style={{ width: `${splitPercent}%`, minWidth: 0, height: '100%', display: 'flex', paddingRight: '12px', boxSizing: 'border-box' }}>
-                    <div style={{ flex: 1, position: 'relative', display: 'flex', border: `3px solid ${canvasBorder}`, borderRadius: '12px', overflow: 'hidden', backgroundColor: canvasBg, boxShadow: shadow }}>
-                        <div style={{ flex: 1, position: 'relative', minWidth: 0 }}>
+                    <div style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column', border: `3px solid ${canvasBorder}`, borderRadius: '12px', overflow: 'hidden', backgroundColor: canvasBg, boxShadow: shadow }}>
+                        <div style={{ width: '100%', display: 'flex', justifyContent: 'center', paddingTop: '20px', zIndex: 10 }}>
+                            <div style={{ backgroundColor: controlsBg, padding: '12px 16px', borderRadius: '12px', border: `3px solid ${controlsBorder}`, boxShadow: shadow }}>
+                                <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                                    {currentSnapshot.tape.map((char, index) => {
+                                        const isHead = index === currentSnapshot.headPos;
+                                        if (Math.abs(index - currentSnapshot.headPos) > 7) return null;
+                                        return (
+                                            <div key={index} style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                                <div style={{ width: '44px', height: '44px', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '20px', fontWeight: 'bold', backgroundColor: isHead ? (isRetroTheme ? '#fef08a' : '#2563eb') : inputBg, border: `3px solid ${isHead ? (isRetroTheme ? '#ca8a04' : '#1d4ed8') : (isRetroTheme ? '#ffffff' : tapeBorder)}`, color: isHead ? (isRetroTheme ? '#854d0e' : '#ffffff') : (char === 'Δ' ? textSecondary : textPrimary), borderRadius: '8px', transition: 'all 0.2s', zIndex: isHead ? 10 : 1 }}>
+                                                    {char}
+                                                </div>
+                                                {isHead && (
+                                                    <div style={{ position: 'absolute', bottom: '-25px', color: isRetroTheme ? '#fef08a' : '#2563eb', fontSize: '20px', fontWeight: 'bold' }}>
+                                                        ⬆
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style={{ flex: 1, position: 'relative', minHeight: 0 }}>
                             <ReactFlow
                                 nodes={nodes}
                                 edges={edges}
@@ -426,20 +456,6 @@ function TMContent() {
                                 panOnDrag={false} zoomOnScroll={false} zoomOnPinch={false} zoomOnDoubleClick={false} nodesDraggable={false} nodesConnectable={false} elementsSelectable={false}
                             >
                                 <AutoFitView splitPercent={splitPercent} />
-                                <Panel position="top-center" style={{ marginTop: '20px', backgroundColor: controlsBg, padding: '12px 16px', borderRadius: '12px', border: `3px solid ${controlsBorder}`, width: '100%', maxWidth: '750px', overflowX: 'auto', boxShadow: shadow }}>
-                                    <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
-                                        {currentSnapshot.tape.map((char, index) => {
-                                            const isHead = index === currentSnapshot.headPos;
-                                            if (Math.abs(index - currentSnapshot.headPos) > 7) return null;
-                                            return (
-                                                <div key={index} style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                                    <div style={{ width: '44px', height: '44px', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '20px', fontWeight: 'bold', backgroundColor: isHead ? (isRetroTheme ? '#fef08a' : '#2563eb') : inputBg, border: `3px solid ${isHead ? (isRetroTheme ? '#ca8a04' : '#1d4ed8') : (isRetroTheme ? '#ffffff' : tapeBorder)}`, color: isHead ? (isRetroTheme ? '#854d0e' : '#ffffff') : (char === 'Δ' ? textSecondary : textPrimary), borderRadius: '8px', transition: 'all 0.2s', boxShadow: isHead && isRetroTheme ? '0 0 15px rgba(202, 138, 4, 0.4)' : 'none', zIndex: isHead ? 10 : 1 }}>{char}</div>
-                                                    {isHead && <div style={{ position: 'absolute', bottom: '-25px', color: isRetroTheme ? '#fef08a' : '#2563eb', fontSize: '20px', animation: isRetroTheme ? 'bounce 1s infinite' : 'none', fontWeight: 'bold' }}>⬆</div>}
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                </Panel>
                                 <Panel position="bottom-center" style={{ marginBottom: '80px', zIndex: 100 }}>
                                     {actionMessage && (
                                         <div style={{ padding: '8px 16px', backgroundColor: (isAccepted || isCrashed) ? (isAccepted ? '#065f46' : '#fee2e2') : (isRetroTheme ? '#1e3a8a' : '#dbeafe'), color: (isAccepted || isCrashed) ? (isAccepted ? '#ffffff' : '#991b1b') : (isRetroTheme ? '#ffffff' : '#1e3a8a'), borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', border: '2px solid currentColor', boxShadow: shadow }}>
@@ -462,6 +478,7 @@ function TMContent() {
                         <div style={{ padding: '24px 24px 16px 24px', flexShrink: 0 }}>
                             <h3 style={{ fontSize: '16px', fontWeight: '900', color: isRetroTheme ? '#ffffff' : '#3730a3', textTransform: 'uppercase', letterSpacing: '1px', margin: '0', borderBottom: `2px solid ${logBorder}`, paddingBottom: '8px' }}>Execution Trace Outline</h3>
                         </div>
+
                         <div ref={logContainerRef} style={{ flex: 1, overflowY: 'auto', padding: '0 24px 24px 24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             {history.map((snap, idx) => {
                                 const isStart = idx === 0;
@@ -478,7 +495,9 @@ function TMContent() {
                                         <div style={{ fontWeight: 'bold', color: textPrimary, fontSize: '14px', width: '60px', flexShrink: 0 }}>STEP {idx}:</div>
                                         <MiniNode id={history[idx - 1].state} isAccept={tmMachine.acceptStates.includes(history[idx - 1].state)} />
                                         <div style={{ color: textPrimary, fontSize: '18px', fontWeight: 'bold' }}>+</div>
-                                        <div style={{ width: '32px', height: '32px', backgroundColor: '#d1fae5', border: '3px solid #10b981', color: '#065f46', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '16px', borderRadius: '6px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', flexShrink: 0 }}>{snap.readChar}</div>
+                                        <div style={{ width: '32px', height: '32px', backgroundColor: '#d1fae5', border: '3px solid #10b981', color: '#065f46', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '16px', borderRadius: '6px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', flexShrink: 0 }}>
+                                            {snap.readChar}
+                                        </div>
                                         <div style={{ color: textPrimary, fontSize: '16px', fontWeight: 'bold' }}>➔</div>
                                         <div style={{ display: 'flex', gap: '8px' }}>
                                             <MiniActionBox title="Write" val={snap.writeChar} color="#10b981" />
@@ -489,6 +508,7 @@ function TMContent() {
                                     </div>
                                 );
                             })}
+
                             {isAccepted && (
                                 <div style={{ marginTop: '12px', padding: '16px', backgroundColor: '#ecfdf5', border: `3px solid #10b981`, borderRadius: '12px', color: '#065f46', textAlign: 'left', alignSelf: 'flex-start', maxWidth: '90%', boxShadow: shadow }}>
                                     <div style={{ fontWeight: '900', fontSize: '16px', marginBottom: '4px', textTransform: 'uppercase' }}>✅ Accepted</div>

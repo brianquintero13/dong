@@ -63,7 +63,7 @@ const CustomSnakeEdge = ({ sourceX, sourceY, targetX, targetY, source, target, d
     const end = getPointOnCircle(targetX, targetY, radius, Math.PI);
     edgePath = `M ${sourceX} ${sourceY} L ${end.x} ${end.y}`;
     labelX = sourceX + (end.x - sourceX) / 2;
-    labelY = sourceY - 14;
+    labelY = sourceY - 26;
   } else if (source === target) {
     const startAngle = -Math.PI * 0.7;
     const endAngle = -Math.PI * 0.3;
@@ -72,7 +72,7 @@ const CustomSnakeEdge = ({ sourceX, sourceY, targetX, targetY, source, target, d
 
     edgePath = `M ${start.x} ${start.y} C ${sourceX - 70} ${sourceY - 140}, ${sourceX + 70} ${sourceY - 140}, ${end.x} ${end.y}`;
     labelX = sourceX;
-    labelY = sourceY - 105;
+    labelY = sourceY - 155;
   } else {
     const dx = targetX - sourceX;
     const dy = targetY - sourceY;
@@ -90,11 +90,14 @@ const CustomSnakeEdge = ({ sourceX, sourceY, targetX, targetY, source, target, d
     const end = getPointOnCircle(targetX, targetY, radius, angleEnd);
 
     edgePath = `M ${start.x} ${start.y} Q ${cx} ${cy} ${end.x} ${end.y}`;
-    labelX = midX + nx * (curve * 0.5);
-    labelY = midY + ny * (curve * 0.5);
+
+    const offset = curve < 0 ? -24 : 24;
+    labelX = midX + nx * (curve * 0.5 + offset);
+    labelY = midY + ny * (curve * 0.5 + offset);
   }
 
-  const strokeColor = data.isActive ? (isRetroTheme ? '#38bdf8' : '#2563eb') : '#94a3b8';
+  // FIX: The base track now becomes a faint blue (#bfdbfe) in Light Mode, allowing the dark snake to visibly travel over it.
+  const strokeColor = data.isActive ? (isRetroTheme ? '#38bdf8' : '#bfdbfe') : '#94a3b8';
   const markerId = `arrow-${source}-${target}-${data.isActive ? 'active' : 'idle'}`;
 
   return (
@@ -105,10 +108,12 @@ const CustomSnakeEdge = ({ sourceX, sourceY, targetX, targetY, source, target, d
           </marker>
         </defs>
         <BaseEdge path={edgePath} markerEnd={`url(#${markerId})`} style={{ strokeWidth: data.isActive ? 4 : 2, stroke: strokeColor, fill: 'none' }} />
-        {isRetroTheme && data.isActive && (
+
+        {data.isActive && (
             <g key={data.stepIndex}>
-              <path d={edgePath} fill="none" stroke="#ffffff" strokeWidth="6" strokeDasharray="100 100" style={{ animation: `snake-draw ${data.speed}ms linear forwards` }} />
-              <path d={edgePath} fill="none" stroke="#3b82f6" strokeWidth="3" strokeDasharray="100 100" style={{ animation: `snake-draw ${data.speed}ms linear forwards` }} />
+              {/* Added explicit strokeDashoffset="100" to force animation from circle */}
+              <path d={edgePath} fill="none" stroke={isRetroTheme ? "#ffffff" : "#93c5fd"} strokeWidth="6" strokeDasharray="100" strokeDashoffset="100" pathLength="100" style={{ animation: `snake-draw ${data.speed}ms linear forwards` }} />
+              <path d={edgePath} fill="none" stroke={isRetroTheme ? "#3b82f6" : "#2563eb"} strokeWidth="3" strokeDasharray="100" strokeDashoffset="100" pathLength="100" style={{ animation: `snake-draw ${data.speed}ms linear forwards` }} />
             </g>
         )}
         <EdgeLabelRenderer>
@@ -142,7 +147,10 @@ function AutomataContent() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [history, setHistory] = useState<string[]>([exampleMachine1.startState]);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [playbackSpeed, setPlaybackSpeed] = useState(800);
+
+  // FIX: Perfectly centered speed
+  const [playbackSpeed, setPlaybackSpeed] = useState(1100);
+
   const [splitPercent, setSplitPercent] = useState(65);
   const [isDragging, setIsDragging] = useState(false);
   const splitContainerRef = useRef<HTMLDivElement>(null);

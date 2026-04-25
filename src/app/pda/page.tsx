@@ -62,7 +62,7 @@ const CustomCurveEdge = ({ sourceX, sourceY, targetX, targetY, source, target, d
         const end = getPointOnCircle(targetX, targetY, radius, Math.PI);
         edgePath = `M ${sourceX} ${sourceY} L ${end.x} ${end.y}`;
         labelX = sourceX + (end.x - sourceX) / 2;
-        labelY = sourceY - 14;
+        labelY = sourceY - 26;
     } else if (source === target) {
         const isBottom = data.loopDirection === 'bottom';
         const startAngle = isBottom ? Math.PI * 0.7 : -Math.PI * 0.7;
@@ -74,7 +74,7 @@ const CustomCurveEdge = ({ sourceX, sourceY, targetX, targetY, source, target, d
 
         edgePath = `M ${start.x} ${start.y} C ${sourceX - 70} ${controlY}, ${sourceX + 70} ${controlY}, ${end.x} ${end.y}`;
         labelX = sourceX;
-        labelY = sourceY + (isBottom ? 115 : -115);
+        labelY = sourceY + (isBottom ? 165 : -165);
     } else {
         const dx = targetX - sourceX, dy = targetY - sourceY;
         const dist = Math.sqrt(dx * dx + dy * dy);
@@ -88,10 +88,13 @@ const CustomCurveEdge = ({ sourceX, sourceY, targetX, targetY, source, target, d
         const end = getPointOnCircle(targetX, targetY, radius, angleEnd);
 
         edgePath = `M ${start.x} ${start.y} Q ${cx} ${cy} ${end.x} ${end.y}`;
-        labelX = midX + nx * (curve * 0.5); labelY = midY + ny * (curve * 0.5);
+
+        const offset = curve < 0 ? -24 : 24;
+        labelX = midX + nx * (curve * 0.5 + offset);
+        labelY = midY + ny * (curve * 0.5 + offset);
     }
 
-    const strokeColor = data.isActive ? (isRetroTheme ? '#38bdf8' : '#2563eb') : '#94a3b8';
+    const strokeColor = data.isActive ? (isRetroTheme ? '#38bdf8' : '#bfdbfe') : '#94a3b8';
     const markerId = `arrow-${source}-${target}-${data.isActive ? 'active' : 'idle'}`;
 
     return (
@@ -102,10 +105,11 @@ const CustomCurveEdge = ({ sourceX, sourceY, targetX, targetY, source, target, d
                 </marker>
             </defs>
             <BaseEdge path={edgePath} markerEnd={`url(#${markerId})`} style={{ strokeWidth: data.isActive ? 4 : 2, stroke: strokeColor, fill: 'none' }} />
-            {isRetroTheme && data.isActive && (
+
+            {data.isActive && (
                 <g key={data.stepIndex}>
-                    <path d={edgePath} fill="none" stroke="#ffffff" strokeWidth="6" strokeDasharray="100 100" style={{ animation: `snake-draw ${data.speed}ms linear forwards` }} />
-                    <path d={edgePath} fill="none" stroke="#3b82f6" strokeWidth="3" strokeDasharray="100 100" style={{ animation: `snake-draw ${data.speed}ms linear forwards` }} />
+                    <path d={edgePath} fill="none" stroke={isRetroTheme ? "#ffffff" : "#93c5fd"} strokeWidth="6" strokeDasharray="100" strokeDashoffset="100" pathLength="100" style={{ animation: `snake-draw ${data.speed}ms linear forwards` }} />
+                    <path d={edgePath} fill="none" stroke={isRetroTheme ? "#3b82f6" : "#2563eb"} strokeWidth="3" strokeDasharray="100" strokeDashoffset="100" pathLength="100" style={{ animation: `snake-draw ${data.speed}ms linear forwards` }} />
                 </g>
             )}
             <EdgeLabelRenderer>
@@ -138,7 +142,7 @@ function PDAContent() {
     const shadow = isRetroTheme ? '0 0 20px rgba(56, 189, 248, 0.1)' : '0 8px 20px rgba(0,0,0,0.15)';
 
     const [inputString, setInputString] = useState('0011');
-    const [playbackSpeed, setPlaybackSpeed] = useState(800);
+    const [playbackSpeed, setPlaybackSpeed] = useState(1100);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isCrashed, setIsCrashed] = useState(false);
     const [splitPercent, setSplitPercent] = useState(65);
@@ -391,8 +395,8 @@ function PDAContent() {
                                 panOnDrag={false} zoomOnScroll={false} zoomOnPinch={false} zoomOnDoubleClick={false} nodesDraggable={false} nodesConnectable={false} elementsSelectable={false}
                             >
                                 <AutoFitView splitPercent={splitPercent} />
-                                <Panel position="top-center" style={{ marginTop: '20px', backgroundColor: controlsBg, padding: '12px 16px', borderRadius: '12px', border: `3px solid ${controlsBorder}`, width: '100%', maxWidth: '750px', overflowX: 'auto', boxShadow: shadow }}>
-                                    <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                                <Panel position="top-center" style={{ marginTop: '20px', backgroundColor: controlsBg, padding: '12px 16px', borderRadius: '12px', border: `3px solid ${controlsBorder}`, boxShadow: shadow }}>
+                                    <div style={{ display: 'flex', gap: '6px' }}>
                                         {inputString.split('').map((char, index) => {
                                             let bgColor = inputBg, borderColor = isRetroTheme ? '#ffffff' : controlsBorder, tColor = textPrimary;
                                             if (index < currentSnapshot.stepIndex) { bgColor = '#065f46'; borderColor = '#10b981'; tColor = '#ffffff'; }
@@ -439,6 +443,7 @@ function PDAContent() {
                         <div style={{ padding: '24px 24px 16px 24px', flexShrink: 0 }}>
                             <h3 style={{ fontSize: '16px', fontWeight: '900', color: isRetroTheme ? '#ffffff' : '#3730a3', textTransform: 'uppercase', letterSpacing: '1px', margin: '0', borderBottom: `2px solid ${logBorder}`, paddingBottom: '8px' }}>Execution Trace Outline</h3>
                         </div>
+
                         <div ref={logContainerRef} style={{ flex: 1, overflowY: 'auto', padding: '0 24px 24px 24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             {history.map((snap, idx) => {
                                 const isStart = idx === 0;
@@ -455,7 +460,9 @@ function PDAContent() {
                                         <div style={{ fontWeight: 'bold', color: textPrimary, fontSize: '14px', width: '60px', flexShrink: 0 }}>STEP {idx}:</div>
                                         <MiniNode id={history[idx - 1].state} isAccept={pdaMachine.acceptStates.includes(history[idx - 1].state)} />
                                         <div style={{ color: textPrimary, fontSize: '18px', fontWeight: 'bold' }}>+</div>
-                                        <div style={{ width: '32px', height: '32px', backgroundColor: '#d1fae5', border: '3px solid #10b981', color: '#065f46', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '16px', borderRadius: '6px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', flexShrink: 0 }}>{snap.readChar === '' ? 'ε' : snap.readChar}</div>
+                                        <div style={{ width: '32px', height: '32px', backgroundColor: '#d1fae5', border: '3px solid #10b981', color: '#065f46', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '16px', borderRadius: '6px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', flexShrink: 0 }}>
+                                            {snap.readChar === '' ? 'ε' : snap.readChar}
+                                        </div>
                                         <div style={{ color: textPrimary, fontSize: '18px', fontWeight: 'bold' }}>+</div>
                                         <div style={{ display: 'flex', gap: '4px' }}>
                                             <MiniStackAction type="Pop" char={snap.popped} />
@@ -466,6 +473,7 @@ function PDAContent() {
                                     </div>
                                 );
                             })}
+
                             {isAccepted && (
                                 <div style={{ marginTop: '12px', padding: '16px', backgroundColor: '#ecfdf5', border: `3px solid #10b981`, borderRadius: '12px', color: '#065f46', textAlign: 'left', alignSelf: 'flex-start', maxWidth: '90%', boxShadow: shadow }}>
                                     <div style={{ fontWeight: '900', fontSize: '16px', marginBottom: '4px', textTransform: 'uppercase' }}>✅ Accepted</div>
