@@ -121,7 +121,6 @@ const CustomCurveEdge = ({ sourceX, sourceY, targetX, targetY, source, target, d
 
             {data.isActive && (
                 <g key={data.stepIndex}>
-                    {/* Added explicit strokeDashoffset="100" to fix the animation start point */}
                     <path d={edgePath} fill="none" stroke={isRetroTheme ? "#ffffff" : "#93c5fd"} strokeWidth="6" strokeDasharray="100" strokeDashoffset="100" pathLength="100" style={{ animation: `snake-draw ${data.speed}ms linear forwards` }} />
                     <path d={edgePath} fill="none" stroke={isRetroTheme ? "#3b82f6" : "#2563eb"} strokeWidth="3" strokeDasharray="100" strokeDashoffset="100" pathLength="100" style={{ animation: `snake-draw ${data.speed}ms linear forwards` }} />
                 </g>
