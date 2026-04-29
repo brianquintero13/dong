@@ -376,7 +376,7 @@ function TMContent() {
     }
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: bgApp, color: textPrimary, width: '100%', flex: 1, minHeight: 0, overflow: 'hidden', userSelect: isDragging ? 'none' : 'auto' }}>
+        <div className="app-container" style={{ display: 'flex', flexDirection: 'column', backgroundColor: bgApp, color: textPrimary, width: '100%', flex: 1, minHeight: 0, overflow: 'hidden', userSelect: isDragging ? 'none' : 'auto' }}>
             <style>{`
         html, body { margin: 0; padding: 0; height: 100dvh; overflow: hidden !important; display: flex; flex-direction: column; }
         main, #__next, div[data-reactroot] { flex: 1 !important; min-height: 0 !important; display: flex !important; flex-direction: column !important; overflow: hidden !important; }
@@ -384,6 +384,17 @@ function TMContent() {
         @keyframes node-shake-red { 0%, 100% { transform: translateX(0); border-color: #ef4444 !important; } 25% { transform: translateX(-5px); border-color: #ef4444 !important; } 75% { transform: translateX(5px); border-color: #ef4444 !important; } }
         @keyframes node-pulse-green { 0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.8); border-color: #10b981 !important; } 70% { box-shadow: 0 0 0 20px rgba(16,185,129,0); border-color: #10b981 !important; } 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); border-color: #10b981 !important; } }
         .react-flow__handle { opacity: 0 !important; } 
+
+        /* MOBILE RESPONSIVE FIX */
+        @media (max-width: 768px) {
+            html, body { overflow: auto !important; height: auto !important; }
+            main, #__next, div[data-reactroot] { height: auto !important; overflow: visible !important; display: block !important; }
+            .app-container { height: auto !important; overflow: visible !important; display: block !important; }
+            .mobile-split { flex-direction: column !important; padding: 12px !important; height: auto !important; overflow: visible !important; }
+            .mobile-canvas { width: 100% !important; height: 60vh !important; padding-right: 0 !important; margin-bottom: 16px !important; flex: none !important; }
+            .mobile-resizer { display: none !important; }
+            .mobile-log { width: 100% !important; height: auto !important; min-height: 50vh !important; padding-left: 0 !important; flex: none !important; }
+        }
       `}</style>
 
             <div style={{ padding: '24px 24px 32px 24px', backgroundColor: controlsBg, borderBottom: `4px solid ${controlsBorder}`, zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0, boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}>
@@ -417,8 +428,8 @@ function TMContent() {
                 </div>
             </div>
 
-            <div ref={splitContainerRef} style={{ display: 'flex', flexDirection: 'row', flex: 1, padding: '24px', width: '100%', minHeight: 0, overflow: 'hidden' }}>
-                <div style={{ width: `${splitPercent}%`, minWidth: 0, height: '100%', display: 'flex', paddingRight: '12px', boxSizing: 'border-box' }}>
+            <div ref={splitContainerRef} className="mobile-split" style={{ display: 'flex', flexDirection: 'row', flex: 1, padding: '24px', width: '100%', minHeight: 0, overflow: 'hidden' }}>
+                <div className="mobile-canvas" style={{ width: `${splitPercent}%`, minWidth: 0, height: '100%', display: 'flex', paddingRight: '12px', boxSizing: 'border-box' }}>
                     <div style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column', border: `3px solid ${canvasBorder}`, borderRadius: '12px', overflow: 'hidden', backgroundColor: canvasBg, boxShadow: shadow }}>
                         <div style={{ width: '100%', display: 'flex', justifyContent: 'center', paddingTop: '20px', zIndex: 10 }}>
                             <div style={{ backgroundColor: controlsBg, padding: '12px 16px', borderRadius: '12px', border: `3px solid ${controlsBorder}`, boxShadow: shadow }}>
@@ -468,11 +479,11 @@ function TMContent() {
                     </div>
                 </div>
 
-                <div onMouseDown={handleMouseDown} style={{ width: '16px', margin: '0 -8px', zIndex: 50, cursor: 'col-resize', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div className="mobile-resizer" onMouseDown={handleMouseDown} style={{ width: '16px', margin: '0 -8px', zIndex: 50, cursor: 'col-resize', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <div style={{ width: '6px', height: '40px', backgroundColor: isDragging ? controlsBorder : (isRetroTheme ? '#475569' : '#94a3b8'), borderRadius: '4px', transition: 'background-color 0.2s' }} />
                 </div>
 
-                <div style={{ width: `${100 - splitPercent}%`, minWidth: 0, height: '100%', display: 'flex', paddingLeft: '12px', boxSizing: 'border-box' }}>
+                <div className="mobile-log" style={{ width: `${100 - splitPercent}%`, minWidth: 0, height: '100%', display: 'flex', paddingLeft: '12px', boxSizing: 'border-box' }}>
                     <div style={{ flex: 1, backgroundColor: logBg, border: `3px solid ${logBorder}`, borderRadius: '12px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: shadow }}>
                         <div style={{ padding: '24px 24px 16px 24px', flexShrink: 0 }}>
                             <h3 style={{ fontSize: '16px', fontWeight: '900', color: isRetroTheme ? '#ffffff' : '#3730a3', textTransform: 'uppercase', letterSpacing: '1px', margin: '0', borderBottom: `2px solid ${logBorder}`, paddingBottom: '8px' }}>Execution Trace Outline</h3>
