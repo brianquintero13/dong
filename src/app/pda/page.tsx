@@ -437,12 +437,11 @@ function PDAContent() {
 
             <div ref={splitContainerRef} className="mobile-split" style={{ display: 'flex', flexDirection: 'row', flex: 1, padding: '24px', width: '100%', minHeight: 0, overflow: 'hidden' }}>
                 <div className="mobile-canvas" style={{ width: `${splitPercent}%`, minWidth: 0, height: '100%', display: 'flex', paddingRight: '12px', boxSizing: 'border-box' }}>
-                    <div style={{ flex: 1, position: 'relative', display: 'flex', border: `3px solid ${canvasBorder}`, borderRadius: '12px', overflow: 'hidden', backgroundColor: canvasBg, boxShadow: shadow }}>
-                        <div style={{ flex: 1, position: 'relative', minWidth: 0 }}>
-                            <ReactFlow key={machineIndex} nodes={nodes} edges={edges} edgeTypes={edgeTypes} nodeTypes={nodeTypes} fitView fitViewOptions={{ padding: 0.3 }} colorMode={isRetroTheme ? "dark" : "light"} panOnDrag={false} zoomOnScroll={false} zoomOnPinch={false} zoomOnDoubleClick={false} nodesDraggable={false} nodesConnectable={false} elementsSelectable={false}>
-                                <AutoFitView splitPercent={splitPercent} />
+                    <div style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'row', border: `3px solid ${canvasBorder}`, borderRadius: '12px', overflow: 'hidden', backgroundColor: canvasBg, boxShadow: shadow }}>
 
-                                <Panel position="top-center" style={{ marginTop: '20px', backgroundColor: controlsBg, padding: '12px 16px', borderRadius: '12px', border: `3px solid ${controlsBorder}`, boxShadow: shadow }}>
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', minWidth: 0 }}>
+                            <div style={{ width: '100%', display: 'flex', justifyContent: 'center', paddingTop: '20px', paddingBottom: '10px', zIndex: 10 }}>
+                                <div style={{ backgroundColor: controlsBg, padding: '12px 16px', borderRadius: '12px', border: `3px solid ${controlsBorder}`, boxShadow: shadow, display: 'inline-flex' }}>
                                     <div style={{ display: 'flex', gap: '6px' }}>
                                         {inputString.split('').map((char, index) => {
                                             let bgColor = inputBg, borderColor = isRetroTheme ? '#ffffff' : controlsBorder, tColor = textPrimary;
@@ -451,18 +450,24 @@ function PDAContent() {
                                             return <div key={index} style={{ width: '44px', height: '44px', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '20px', fontWeight: 'bold', backgroundColor: bgColor, border: `3px solid ${borderColor}`, color: tColor, borderRadius: '8px' }}>{char}</div>;
                                         })}
                                     </div>
-                                </Panel>
+                                </div>
+                            </div>
 
-                                <Panel position="bottom-center" style={{ marginBottom: '80px', zIndex: 100 }}>
-                                    {actionMessage && (
-                                        <div style={{ padding: '8px 16px', backgroundColor: (isAccepted || isCrashed || isFinishedReading) ? (isAccepted ? '#065f46' : '#fee2e2') : (isRetroTheme ? '#1e3a8a' : '#dbeafe'), color: (isAccepted || isCrashed || isFinishedReading) ? (isAccepted ? '#ffffff' : '#991b1b') : (isRetroTheme ? '#ffffff' : '#1e3a8a'), borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', border: '2px solid currentColor', boxShadow: shadow }}>
-                                            {actionMessage}
-                                        </div>
-                                    )}
-                                </Panel>
-                                <Background color={isRetroTheme ? '#ffffff' : '#cbd5e1'} gap={20} size={2} />
-                            </ReactFlow>
+                            <div style={{ flex: 1, position: 'relative', minHeight: 0 }}>
+                                <ReactFlow key={machineIndex} nodes={nodes} edges={edges} edgeTypes={edgeTypes} nodeTypes={nodeTypes} fitView fitViewOptions={{ padding: 0.3 }} colorMode={isRetroTheme ? "dark" : "light"} panOnDrag={false} zoomOnScroll={false} zoomOnPinch={false} zoomOnDoubleClick={false} nodesDraggable={false} nodesConnectable={false} elementsSelectable={false}>
+                                    <AutoFitView splitPercent={splitPercent} />
+                                    <Panel position="bottom-center" style={{ marginBottom: '80px', zIndex: 100 }}>
+                                        {actionMessage && (
+                                            <div style={{ padding: '8px 16px', backgroundColor: (isAccepted || isCrashed || isFinishedReading) ? (isAccepted ? '#065f46' : '#fee2e2') : (isRetroTheme ? '#1e3a8a' : '#dbeafe'), color: (isAccepted || isCrashed || isFinishedReading) ? (isAccepted ? '#ffffff' : '#991b1b') : (isRetroTheme ? '#ffffff' : '#1e3a8a'), borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', border: '2px solid currentColor', boxShadow: shadow }}>
+                                                {actionMessage}
+                                            </div>
+                                        )}
+                                    </Panel>
+                                    <Background color={isRetroTheme ? '#ffffff' : '#cbd5e1'} gap={20} size={2} />
+                                </ReactFlow>
+                            </div>
                         </div>
+
                         <div style={{ width: '90px', height: '100%', flexShrink: 0, backgroundColor: stackBg, borderLeft: `4px solid ${stackBorder}`, display: 'flex', flexDirection: 'column', alignItems: 'center', overflow: 'hidden' }}>
                             <div style={{ padding: '16px 8px 0 8px', flexShrink: 0, width: '100%', textAlign: 'center' }}>
                                 <h3 style={{ fontSize: '14px', fontWeight: '900', color: isRetroTheme ? '#ffffff' : '#064e3b', marginBottom: '16px', textTransform: 'uppercase' }}>Stack</h3>
@@ -479,6 +484,7 @@ function PDAContent() {
                                 <div style={{ marginTop: '12px', color: isRetroTheme ? '#34d399' : '#059669', fontSize: '12px', fontWeight: '900', letterSpacing: '1px', flexShrink: 0 }}>TOP ⬆</div>
                             </div>
                         </div>
+
                     </div>
                 </div>
 
@@ -489,7 +495,7 @@ function PDAContent() {
                 <div className="mobile-log" style={{ width: `${100 - splitPercent}%`, minWidth: 0, height: '100%', display: 'flex', paddingLeft: '12px', boxSizing: 'border-box' }}>
                     <div style={{ flex: 1, backgroundColor: logBg, border: `3px solid ${logBorder}`, borderRadius: '12px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: shadow }}>
                         <div style={{ padding: '24px 24px 16px 24px', flexShrink: 0 }}>
-                            <h3 style={{ fontSize: '16px', fontWeight: '900', color: isRetroTheme ? '#ffffff' : '#3730a3', textTransform: 'uppercase', letterSpacing: '1px', margin: '0', borderBottom: `2px solid ${logBorder}`, paddingBottom: '8px' }}>Execution Trace</h3>
+                            <h3 style={{ fontSize: '16px', fontWeight: '900', color: isRetroTheme ? '#ffffff' : '#3730a3', textTransform: 'uppercase', letterSpacing: '1px', margin: '0', borderBottom: `2px solid ${logBorder}`, paddingBottom: '8px' }}>Execution Trace Outline</h3>
                         </div>
 
                         <div ref={logContainerRef} style={{ flex: 1, overflowY: 'auto', padding: '0 24px 24px 24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -530,7 +536,7 @@ function PDAContent() {
                             {isCrashed && (
                                 <div style={{ marginTop: '12px', padding: '16px', backgroundColor: '#fef2f2', border: `3px solid #ef4444`, borderRadius: '12px', color: '#991b1b', textAlign: 'left', alignSelf: 'flex-start', maxWidth: '90%', boxShadow: shadow }}>
                                     <div style={{ fontWeight: '900', fontSize: '16px', marginBottom: '4px', textTransform: 'uppercase' }}>❌ Crash: Invalid Transition</div>
-                                    <div style={{ fontSize: '14px', fontWeight: 'bold' }}>The machine attempted to read '{currentSnapshot.stepIndex < inputString.length ? inputString[currentSnapshot.stepIndex] : 'ε'}', but the top of the stack was '{currentSnapshot.stack[currentSnapshot.stack.length - 1]}'. No valid rule exists for this combination.</div>
+                                    <div style={{ fontSize: '14px', fontWeight: 'bold' }}>The machine attempted to read '{currentSnapshot.stepIndex < inputString.length ? inputString[currentSnapshot.stepIndex] : 'ε'}', but the top of the stack was '{currentSnapshot.stack[currentSnapshot.stack.length - 1]}'. No valid rule exists for this combination in state {currentSnapshot.state}.</div>
                                 </div>
                             )}
                             {isFinishedReading && !isAccepted && !isCrashed && (

@@ -113,10 +113,10 @@ const tmMachines = [
         nodesLayout: [
             { id: 'start-dummy', position: { x: 50, y: 200 } },
             { id: 'q0', label: 'q0', position: { x: 200, y: 200 } },
-            { id: 'q1', label: 'q1', position: { x: 400, y: 80 } },
-            { id: 'q2', label: 'q2', position: { x: 600, y: 80 } },
-            { id: 'q3', label: 'q3', position: { x: 400, y: 320 } },
-            { id: 'q4', label: 'q4', position: { x: 600, y: 320 } }
+            { id: 'q1', label: 'q1', position: { x: 400, y: 50 } },
+            { id: 'q2', label: 'q2', position: { x: 600, y: 50 } },
+            { id: 'q3', label: 'q3', position: { x: 400, y: 350 } },
+            { id: 'q4', label: 'q4', position: { x: 600, y: 350 } }
         ],
         edgesLayout: [
             { id: 'e-start', source: 'start-dummy', target: 'q0', label: 'Start', curve: 0 },
@@ -441,9 +441,10 @@ function TMContent() {
             <div ref={splitContainerRef} className="mobile-split" style={{ display: 'flex', flexDirection: 'row', flex: 1, padding: '24px', width: '100%', minHeight: 0, overflow: 'hidden' }}>
                 <div className="mobile-canvas" style={{ width: `${splitPercent}%`, minWidth: 0, height: '100%', display: 'flex', paddingRight: '12px', boxSizing: 'border-box' }}>
                     <div style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column', border: `3px solid ${canvasBorder}`, borderRadius: '12px', overflow: 'hidden', backgroundColor: canvasBg, boxShadow: shadow }}>
-                        <div style={{ width: '100%', display: 'flex', justifyContent: 'center', paddingTop: '20px', zIndex: 10 }}>
-                            <div style={{ backgroundColor: controlsBg, padding: '12px 16px', borderRadius: '12px', border: `3px solid ${controlsBorder}`, boxShadow: shadow }}>
-                                <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+
+                        <div style={{ width: '100%', display: 'flex', justifyContent: 'center', paddingTop: '20px', paddingBottom: '10px', zIndex: 10 }}>
+                            <div style={{ backgroundColor: controlsBg, padding: '12px 16px', borderRadius: '12px', border: `3px solid ${controlsBorder}`, boxShadow: shadow, display: 'inline-flex' }}>
+                                <div style={{ display: 'flex', gap: '6px' }}>
                                     {currentSnapshot.tape.map((char, index) => {
                                         const isHead = index === currentSnapshot.headPos;
                                         if (Math.abs(index - currentSnapshot.headPos) > 7) return null;
