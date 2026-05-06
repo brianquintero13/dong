@@ -8,7 +8,6 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/page.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app/pda/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/pda/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/tm/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/tm/page.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -106,7 +105,7 @@
       <workItem from="1777136974904" duration="488000" />
       <workItem from="1777137486918" duration="5047000" />
       <workItem from="1777352857389" duration="8195000" />
-      <workItem from="1778080616439" duration="2214000" />
+      <workItem from="1778080616439" duration="2974000" />
     </task>
     <task id="LOCAL-00001" summary="More samples">
       <option name="closed" value="true" />
