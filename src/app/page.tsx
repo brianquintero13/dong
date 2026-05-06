@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, memo } from 'react';
 import {
-  ReactFlow, Background, Panel,
+  ReactFlow, Background,
   BaseEdge, EdgeLabelRenderer, Position, Node, Edge,
   useReactFlow, ReactFlowProvider, Handle
 } from '@xyflow/react';
@@ -137,7 +137,7 @@ const faMachines = [
 
 const AutoFitView = ({ splitPercent }: { splitPercent: number }) => {
   const { fitView } = useReactFlow();
-  useEffect(() => { fitView({ padding: 0.35, duration: 0 }); }, [splitPercent, fitView]);
+  useEffect(() => { fitView({ padding: 0.4, duration: 0 }); }, [splitPercent, fitView]);
   return null;
 };
 
@@ -403,31 +403,30 @@ function AutomataContent() {
           <div className="mobile-canvas" style={{ width: `${splitPercent}%`, minWidth: 0, height: '100%', display: 'flex', paddingRight: '12px', boxSizing: 'border-box' }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: canvasBg, position: 'relative', border: `3px solid ${canvasBorder}`, borderRadius: '12px', overflow: 'hidden', boxShadow: shadow }}>
 
-              <div style={{ width: '100%', display: 'flex', justifyContent: 'center', paddingTop: '20px', paddingBottom: '10px', zIndex: 10 }}>
-                <div style={{ backgroundColor: controlsBg, padding: '12px 16px', borderRadius: '12px', border: `3px solid ${controlsBorder}`, boxShadow: shadow, display: 'inline-flex' }}>
-                  <div style={{ display: 'flex', gap: '6px' }}>
-                    {inputString.split('').map((char, index) => {
-                      let bgColor = inputBg, borderColor = isRetroTheme ? '#ffffff' : controlsBorder, tColor = textPrimary;
-                      if (index < currentIndex) { bgColor = '#065f46'; borderColor = '#10b981'; tColor = '#ffffff'; }
-                      else if (index === currentIndex && !isFinished) { bgColor = isRetroTheme ? '#fef08a' : '#2563eb'; borderColor = isRetroTheme ? '#ca8a04' : '#1d4ed8'; tColor = isRetroTheme ? '#854d0e' : '#ffffff'; }
-                      return <div key={index} style={{ width: '44px', height: '44px', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '20px', fontWeight: 'bold', backgroundColor: bgColor, border: `3px solid ${borderColor}`, color: tColor, borderRadius: '8px' }}>{char}</div>;
-                    })}
-                  </div>
+              <div style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '16px', backgroundColor: controlsBg, borderBottom: `2px solid ${canvasBorder}`, zIndex: 10 }}>
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  {inputString.split('').map((char, index) => {
+                    let bgColor = inputBg, borderColor = isRetroTheme ? '#ffffff' : controlsBorder, tColor = textPrimary;
+                    if (index < currentIndex) { bgColor = '#065f46'; borderColor = '#10b981'; tColor = '#ffffff'; }
+                    else if (index === currentIndex && !isFinished) { bgColor = isRetroTheme ? '#fef08a' : '#2563eb'; borderColor = isRetroTheme ? '#ca8a04' : '#1d4ed8'; tColor = isRetroTheme ? '#854d0e' : '#ffffff'; }
+                    return <div key={index} style={{ width: '40px', height: '40px', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '18px', fontWeight: 'bold', backgroundColor: bgColor, border: `3px solid ${borderColor}`, color: tColor, borderRadius: '8px' }}>{char}</div>;
+                  })}
                 </div>
               </div>
 
               <div style={{ flex: 1, position: 'relative', minHeight: 0 }}>
-                <ReactFlow key={machineIndex} nodes={nodes} edges={edges} edgeTypes={edgeTypes} nodeTypes={nodeTypes} fitView fitViewOptions={{ padding: 0.3 }} colorMode={isRetroTheme ? "dark" : "light"} panOnDrag={false} zoomOnScroll={false} zoomOnPinch={false} zoomOnDoubleClick={false} nodesDraggable={false} nodesConnectable={false} elementsSelectable={false}>
+                <ReactFlow key={machineIndex} nodes={nodes} edges={edges} edgeTypes={edgeTypes} nodeTypes={nodeTypes} fitView fitViewOptions={{ padding: 0.4 }} colorMode={isRetroTheme ? "dark" : "light"} panOnDrag={false} zoomOnScroll={false} zoomOnPinch={false} zoomOnDoubleClick={false} nodesDraggable={false} nodesConnectable={false} elementsSelectable={false}>
                   <AutoFitView splitPercent={splitPercent} />
-                  <Panel position="bottom-center" style={{ marginBottom: '80px', zIndex: 100 }}>
-                    {actionMessage && (
-                        <div style={{ padding: '8px 16px', backgroundColor: isFinished ? (isAccepted ? '#065f46' : '#fee2e2') : (isRetroTheme ? '#1e3a8a' : '#dbeafe'), color: isFinished ? (isAccepted ? '#ffffff' : '#991b1b') : (isRetroTheme ? '#ffffff' : '#1e3a8a'), borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', border: '2px solid currentColor', boxShadow: shadow }}>
-                          {actionMessage}
-                        </div>
-                    )}
-                  </Panel>
                   <Background color={isRetroTheme ? '#ffffff' : '#cbd5e1'} gap={20} size={2} />
                 </ReactFlow>
+              </div>
+
+              <div style={{ minHeight: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: controlsBg, borderTop: `2px solid ${canvasBorder}`, zIndex: 10, padding: '12px' }}>
+                {actionMessage ? (
+                    <div style={{ padding: '8px 16px', backgroundColor: isFinished ? (isAccepted ? '#065f46' : '#fee2e2') : (isRetroTheme ? '#1e3a8a' : '#dbeafe'), color: isFinished ? (isAccepted ? '#ffffff' : '#991b1b') : (isRetroTheme ? '#ffffff' : '#1e3a8a'), borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', border: '2px solid currentColor', boxShadow: shadow }}>
+                      {actionMessage}
+                    </div>
+                ) : null}
               </div>
 
             </div>
@@ -440,7 +439,7 @@ function AutomataContent() {
           <div className="mobile-log" style={{ width: `${100 - splitPercent}%`, minWidth: 0, height: '100%', display: 'flex', paddingLeft: '12px', boxSizing: 'border-box' }}>
             <div style={{ flex: 1, backgroundColor: logBg, border: `3px solid ${logBorder}`, borderRadius: '12px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: shadow }}>
               <div style={{ padding: '24px 24px 16px 24px', flexShrink: 0 }}>
-                <h3 style={{ fontSize: '16px', fontWeight: '900', color: isRetroTheme ? '#ffffff' : '#3730a3', textTransform: 'uppercase', letterSpacing: '1px', margin: '0', borderBottom: `2px solid ${logBorder}`, paddingBottom: '8px' }}>Execution Trace Outline</h3>
+                <h3 style={{ fontSize: '16px', fontWeight: '900', color: isRetroTheme ? '#ffffff' : '#3730a3', textTransform: 'uppercase', letterSpacing: '1px', margin: '0', borderBottom: `2px solid ${logBorder}`, paddingBottom: '8px' }}>Execution Trace</h3>
               </div>
               <div ref={logContainerRef} style={{ flex: 1, overflowY: 'auto', padding: '0 24px 24px 24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {history.map((state, idx) => {

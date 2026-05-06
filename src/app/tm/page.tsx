@@ -113,10 +113,10 @@ const tmMachines = [
         nodesLayout: [
             { id: 'start-dummy', position: { x: 50, y: 200 } },
             { id: 'q0', label: 'q0', position: { x: 200, y: 200 } },
-            { id: 'q1', label: 'q1', position: { x: 400, y: 50 } },
-            { id: 'q2', label: 'q2', position: { x: 600, y: 50 } },
-            { id: 'q3', label: 'q3', position: { x: 400, y: 350 } },
-            { id: 'q4', label: 'q4', position: { x: 600, y: 350 } }
+            { id: 'q1', label: 'q1', position: { x: 400, y: 100 } },
+            { id: 'q2', label: 'q2', position: { x: 600, y: 100 } },
+            { id: 'q3', label: 'q3', position: { x: 400, y: 300 } },
+            { id: 'q4', label: 'q4', position: { x: 600, y: 300 } }
         ],
         edgesLayout: [
             { id: 'e-start', source: 'start-dummy', target: 'q0', label: 'Start', curve: 0 },
@@ -135,7 +135,7 @@ const tmMachines = [
 
 const AutoFitView = ({ splitPercent }: { splitPercent: number }) => {
     const { fitView } = useReactFlow();
-    useEffect(() => { fitView({ padding: 0.35, duration: 0 }); }, [splitPercent, fitView]);
+    useEffect(() => { fitView({ padding: 0.4, duration: 0 }); }, [splitPercent, fitView]);
     return null;
 };
 
@@ -442,35 +442,34 @@ function TMContent() {
                 <div className="mobile-canvas" style={{ width: `${splitPercent}%`, minWidth: 0, height: '100%', display: 'flex', paddingRight: '12px', boxSizing: 'border-box' }}>
                     <div style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column', border: `3px solid ${canvasBorder}`, borderRadius: '12px', overflow: 'hidden', backgroundColor: canvasBg, boxShadow: shadow }}>
 
-                        <div style={{ width: '100%', display: 'flex', justifyContent: 'center', paddingTop: '20px', paddingBottom: '10px', zIndex: 10 }}>
-                            <div style={{ backgroundColor: controlsBg, padding: '12px 16px', borderRadius: '12px', border: `3px solid ${controlsBorder}`, boxShadow: shadow, display: 'inline-flex' }}>
-                                <div style={{ display: 'flex', gap: '6px' }}>
-                                    {currentSnapshot.tape.map((char, index) => {
-                                        const isHead = index === currentSnapshot.headPos;
-                                        if (Math.abs(index - currentSnapshot.headPos) > 7) return null;
-                                        return (
-                                            <div key={index} style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                                <div style={{ width: '44px', height: '44px', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '20px', fontWeight: 'bold', backgroundColor: isHead ? (isRetroTheme ? '#fef08a' : '#2563eb') : inputBg, border: `3px solid ${isHead ? (isRetroTheme ? '#ca8a04' : '#1d4ed8') : (isRetroTheme ? '#ffffff' : tapeBorder)}`, color: isHead ? (isRetroTheme ? '#854d0e' : '#ffffff') : (char === 'Δ' ? textSecondary : textPrimary), borderRadius: '8px', transition: 'all 0.2s', zIndex: isHead ? 10 : 1 }}>{char}</div>
-                                                {isHead && <div style={{ position: 'absolute', bottom: '-25px', color: isRetroTheme ? '#fef08a' : '#2563eb', fontSize: '20px', fontWeight: 'bold' }}>⬆</div>}
-                                            </div>
-                                        );
-                                    })}
-                                </div>
+                        <div style={{ width: '100%', display: 'flex', justifyContent: 'center', paddingTop: '16px', paddingBottom: '32px', backgroundColor: controlsBg, borderBottom: `2px solid ${canvasBorder}`, zIndex: 10 }}>
+                            <div style={{ display: 'flex', gap: '6px' }}>
+                                {currentSnapshot.tape.map((char, index) => {
+                                    const isHead = index === currentSnapshot.headPos;
+                                    if (Math.abs(index - currentSnapshot.headPos) > 7) return null;
+                                    return (
+                                        <div key={index} style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                            <div style={{ width: '44px', height: '44px', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '20px', fontWeight: 'bold', backgroundColor: isHead ? (isRetroTheme ? '#fef08a' : '#2563eb') : inputBg, border: `3px solid ${isHead ? (isRetroTheme ? '#ca8a04' : '#1d4ed8') : (isRetroTheme ? '#ffffff' : tapeBorder)}`, color: isHead ? (isRetroTheme ? '#854d0e' : '#ffffff') : (char === 'Δ' ? textSecondary : textPrimary), borderRadius: '8px', transition: 'all 0.2s', zIndex: isHead ? 10 : 1 }}>{char}</div>
+                                            {isHead && <div style={{ position: 'absolute', bottom: '-28px', color: isRetroTheme ? '#fef08a' : '#2563eb', fontSize: '20px', fontWeight: 'bold' }}>⬆</div>}
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
 
                         <div style={{ flex: 1, position: 'relative', minHeight: 0 }}>
-                            <ReactFlow key={machineIndex} nodes={nodes} edges={edges} edgeTypes={edgeTypes} nodeTypes={nodeTypes} fitView fitViewOptions={{ padding: 0.3 }} colorMode={isRetroTheme ? "dark" : "light"} panOnDrag={false} zoomOnScroll={false} zoomOnPinch={false} zoomOnDoubleClick={false} nodesDraggable={false} nodesConnectable={false} elementsSelectable={false}>
+                            <ReactFlow key={machineIndex} nodes={nodes} edges={edges} edgeTypes={edgeTypes} nodeTypes={nodeTypes} fitView fitViewOptions={{ padding: 0.4 }} colorMode={isRetroTheme ? "dark" : "light"} panOnDrag={false} zoomOnScroll={false} zoomOnPinch={false} zoomOnDoubleClick={false} nodesDraggable={false} nodesConnectable={false} elementsSelectable={false}>
                                 <AutoFitView splitPercent={splitPercent} />
-                                <Panel position="bottom-center" style={{ marginBottom: '80px', zIndex: 100 }}>
-                                    {actionMessage && (
-                                        <div style={{ padding: '8px 16px', backgroundColor: (isAccepted || isCrashed) ? (isAccepted ? '#065f46' : '#fee2e2') : (isRetroTheme ? '#1e3a8a' : '#dbeafe'), color: (isAccepted || isCrashed) ? (isAccepted ? '#ffffff' : '#991b1b') : (isRetroTheme ? '#ffffff' : '#1e3a8a'), borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', border: '2px solid currentColor', boxShadow: shadow }}>
-                                            {actionMessage}
-                                        </div>
-                                    )}
-                                </Panel>
                                 <Background color={isRetroTheme ? '#ffffff' : '#cbd5e1'} gap={20} size={2} />
                             </ReactFlow>
+                        </div>
+
+                        <div style={{ minHeight: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: controlsBg, borderTop: `2px solid ${canvasBorder}`, zIndex: 10, padding: '12px' }}>
+                            {actionMessage ? (
+                                <div style={{ padding: '8px 16px', backgroundColor: isAccepted ? '#ecfdf5' : '#fef2f2', color: isAccepted ? '#065f46' : '#991b1b', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', border: '2px solid currentColor', boxShadow: shadow }}>
+                                    {actionMessage}
+                                </div>
+                            ) : null}
                         </div>
                     </div>
                 </div>
