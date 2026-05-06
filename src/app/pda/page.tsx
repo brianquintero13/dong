@@ -10,7 +10,7 @@ import { useTheme } from "../ThemeContext";
 
 const pdaMachines = [
     {
-        name: "1. 0^n 1^n (Classic)",
+        name: "1. 0^n 1^n",
         defaultInput: "0011",
         alphabet: ['0', '1'],
         states: ['q0', 'q1', 'q2'],
@@ -41,7 +41,7 @@ const pdaMachines = [
         ]
     },
     {
-        name: "2. 0^n 1^2n (Multiplier)",
+        name: "2. 0^n 1^2n",
         defaultInput: "001111",
         alphabet: ['0', '1'],
         states: ['q0', 'q1', 'q2'],

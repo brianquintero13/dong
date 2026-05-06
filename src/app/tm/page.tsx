@@ -272,7 +272,6 @@ function TMContent() {
         setIsCrashed(false);
     }, [machineIndex, currentMachine]);
 
-
     const handleMouseDown = (e: React.MouseEvent) => {
         e.preventDefault(); setIsDragging(true);
         const startX = e.clientX; const startPercent = splitPercent;
