@@ -137,7 +137,7 @@ const pdaMachines = [
 
 const AutoFitView = ({ splitPercent }: { splitPercent: number }) => {
     const { fitView } = useReactFlow();
-    useEffect(() => { fitView({ padding: 0.4, duration: 0 }); }, [splitPercent, fitView]);
+    useEffect(() => { fitView({ padding: 0.35, duration: 0 }); }, [splitPercent, fitView]);
     return null;
 };
 
@@ -402,36 +402,31 @@ function PDAContent() {
         }
       `}</style>
 
-            <div style={{ padding: '24px', backgroundColor: controlsBg, borderBottom: `4px solid ${controlsBorder}`, zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flexShrink: 0, boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}>
+            {/* COMPACT TOP CONTROL BAR */}
+            <div style={{ padding: '12px 24px', backgroundColor: controlsBg, borderBottom: `4px solid ${controlsBorder}`, zIndex: 10, display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', maxWidth: '800px', marginBottom: '16px' }}>
-                    <label style={{ fontSize: '13px', fontWeight: 'bold', color: textPrimary, textTransform: 'uppercase', letterSpacing: '1px', flexShrink: 0 }}>Select Machine:</label>
-                    <select value={machineIndex} onChange={(e) => setMachineIndex(parseInt(e.target.value))} style={{ padding: '8px 12px', borderRadius: '8px', border: `3px solid ${controlsBorder}`, backgroundColor: inputBg, color: textPrimary, fontWeight: 'bold', fontSize: '14px', outline: 'none', flex: 1, boxShadow: shadow, cursor: 'pointer' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '13px', fontWeight: 'bold', color: textPrimary, textTransform: 'uppercase', letterSpacing: '1px' }}>Machine:</span>
+                    <select value={machineIndex} onChange={(e) => setMachineIndex(parseInt(e.target.value))} style={{ padding: '6px 12px', borderRadius: '6px', border: `2px solid ${controlsBorder}`, backgroundColor: inputBg, color: textPrimary, fontWeight: 'bold', fontSize: '14px', outline: 'none', minWidth: '180px', boxShadow: shadow, cursor: 'pointer' }}>
                         {pdaMachines.map((m, idx) => <option key={idx} value={idx}>{m.name}</option>)}
                     </select>
                 </div>
 
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', flexWrap: 'wrap', justifyContent: 'flex-start', width: '100%' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                            <label style={{ marginTop: '10px', fontSize: '13px', fontWeight: 'bold', color: textPrimary, textTransform: 'uppercase', letterSpacing: '1px' }}>Input Sequence:</label>
-                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <input value={inputString} onChange={(e) => { const val = e.target.value.replace(/\s/g, ''); setInputString(val); handleReset(val); }} placeholder="Input..." style={{ padding: '8px 16px', borderRadius: '8px', border: `3px solid ${controlsBorder}`, backgroundColor: inputBg, color: textPrimary, fontWeight: '900', fontSize: '16px', letterSpacing: '2px', fontFamily: 'monospace', outline: 'none', width: '140px', boxShadow: shadow }} />
-                                <span style={{ marginTop: '8px', fontSize: '11px', color: textSecondary, fontStyle: 'italic', fontWeight: 'bold' }}>*Symbols: {currentMachine.alphabet.join(', ')}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div style={{ display: 'flex', gap: '12px', height: '41px' }}>
-                        <button onClick={handleStepBackward} disabled={history.length === 1} style={{ padding: '10px 16px', backgroundColor: '#374151', color: '#ffffff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>⏮ Back</button>
-                        <button onClick={stepForward} disabled={isAccepted || isCrashed} style={{ padding: '10px 16px', backgroundColor: '#3b82f6', color: '#ffffff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>Step ⏭</button>
-                        <button onClick={() => setIsPlaying(!isPlaying)} disabled={isAccepted || isCrashed} style={{ padding: '10px 16px', backgroundColor: '#10b981', color: '#ffffff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>{isPlaying ? '⏸ Pause' : '▶️ Play'}</button>
-                        <button onClick={() => handleReset()} style={{ padding: '10px 16px', backgroundColor: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>↺ Reset</button>
-                        <div style={{ width: '3px', height: '30px', backgroundColor: controlsBorder, margin: '5px 8px 0 8px', borderRadius: '2px' }} />
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', backgroundColor: inputBg, padding: '0 16px', borderRadius: '8px', border: `3px solid ${controlsBorder}`, boxShadow: shadow }}>
-                            <span style={{ fontSize: '14px', fontWeight: 'bold', color: textPrimary }}>Speed:</span>
-                            <input type="range" min="100" max="2000" step="100" value={2100 - playbackSpeed} onChange={(e) => setPlaybackSpeed(2100 - parseInt(e.target.value))} style={{ cursor: 'pointer', accentColor: controlsBorder }} />
-                        </div>
-                    </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '13px', fontWeight: 'bold', color: textPrimary, textTransform: 'uppercase', letterSpacing: '1px' }}>Input:</span>
+                    <input value={inputString} onChange={(e) => { const val = e.target.value.replace(/\s/g, ''); setInputString(val); handleReset(val); }} placeholder="Sequence..." style={{ padding: '6px 12px', borderRadius: '6px', border: `2px solid ${controlsBorder}`, backgroundColor: inputBg, color: textPrimary, fontWeight: '900', fontSize: '14px', letterSpacing: '1px', fontFamily: 'monospace', outline: 'none', width: '120px', boxShadow: shadow }} />
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <button onClick={handleStepBackward} disabled={history.length === 1} style={{ padding: '6px 12px', backgroundColor: '#374151', color: '#ffffff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.2)', fontSize: '13px' }}>⏮</button>
+                    <button onClick={stepForward} disabled={isAccepted || isCrashed} style={{ padding: '6px 12px', backgroundColor: '#3b82f6', color: '#ffffff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.2)', fontSize: '13px' }}>⏭</button>
+                    <button onClick={() => setIsPlaying(!isPlaying)} disabled={isAccepted || isCrashed} style={{ padding: '6px 12px', backgroundColor: '#10b981', color: '#ffffff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.2)', fontSize: '13px' }}>{isPlaying ? '⏸' : '▶️'}</button>
+                    <button onClick={() => handleReset()} style={{ padding: '6px 12px', backgroundColor: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.2)', fontSize: '13px' }}>↺</button>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: inputBg, padding: '4px 12px', borderRadius: '6px', border: `2px solid ${controlsBorder}`, boxShadow: shadow }}>
+                    <span style={{ fontSize: '13px', fontWeight: 'bold', color: textPrimary }}>Speed:</span>
+                    <input type="range" min="100" max="2000" step="100" value={2100 - playbackSpeed} onChange={(e) => setPlaybackSpeed(2100 - parseInt(e.target.value))} style={{ cursor: 'pointer', accentColor: controlsBorder, width: '80px' }} />
                 </div>
             </div>
 
@@ -440,29 +435,30 @@ function PDAContent() {
                     <div style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'row', border: `3px solid ${canvasBorder}`, borderRadius: '12px', overflow: 'hidden', backgroundColor: canvasBg, boxShadow: shadow }}>
 
                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', minWidth: 0 }}>
-                            <div style={{ width: '100%', display: 'flex', justifyContent: 'center', paddingTop: '20px', paddingBottom: '10px', zIndex: 10 }}>
-                                <div style={{ backgroundColor: controlsBg, padding: '12px 16px', borderRadius: '12px', border: `3px solid ${controlsBorder}`, boxShadow: shadow, display: 'inline-flex' }}>
-                                    <div style={{ display: 'flex', gap: '6px' }}>
-                                        {inputString.split('').map((char, index) => {
-                                            let bgColor = inputBg, borderColor = isRetroTheme ? '#ffffff' : controlsBorder, tColor = textPrimary;
-                                            if (index < currentSnapshot.stepIndex) { bgColor = '#065f46'; borderColor = '#10b981'; tColor = '#ffffff'; }
-                                            else if (index === currentSnapshot.stepIndex && !isFinishedReading) { bgColor = isRetroTheme ? '#fef08a' : '#2563eb'; borderColor = isRetroTheme ? '#ca8a04' : '#1d4ed8'; tColor = isRetroTheme ? '#854d0e' : '#ffffff'; }
-                                            return <div key={index} style={{ width: '40px', height: '40px', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '18px', fontWeight: 'bold', backgroundColor: bgColor, border: `3px solid ${borderColor}`, color: tColor, borderRadius: '8px' }}>{char}</div>;
-                                        })}
-                                    </div>
+                            {/* FIXED STRUCTURAL HEADER FOR SEQUENCE */}
+                            <div style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '12px', backgroundColor: controlsBg, borderBottom: `2px solid ${canvasBorder}`, zIndex: 10 }}>
+                                <div style={{ display: 'flex', gap: '6px' }}>
+                                    {inputString.split('').map((char, index) => {
+                                        let bgColor = inputBg, borderColor = isRetroTheme ? '#ffffff' : controlsBorder, tColor = textPrimary;
+                                        if (index < currentSnapshot.stepIndex) { bgColor = '#065f46'; borderColor = '#10b981'; tColor = '#ffffff'; }
+                                        else if (index === currentSnapshot.stepIndex && !isFinishedReading) { bgColor = isRetroTheme ? '#fef08a' : '#2563eb'; borderColor = isRetroTheme ? '#ca8a04' : '#1d4ed8'; tColor = isRetroTheme ? '#854d0e' : '#ffffff'; }
+                                        return <div key={index} style={{ width: '40px', height: '40px', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '18px', fontWeight: 'bold', backgroundColor: bgColor, border: `3px solid ${borderColor}`, color: tColor, borderRadius: '8px' }}>{char}</div>;
+                                    })}
                                 </div>
                             </div>
 
+                            {/* GRAPH CANVAS */}
                             <div style={{ flex: 1, position: 'relative', minHeight: 0 }}>
-                                <ReactFlow key={machineIndex} nodes={nodes} edges={edges} edgeTypes={edgeTypes} nodeTypes={nodeTypes} fitView fitViewOptions={{ padding: 0.4 }} colorMode={isRetroTheme ? "dark" : "light"} panOnDrag={false} zoomOnScroll={false} zoomOnPinch={false} zoomOnDoubleClick={false} nodesDraggable={false} nodesConnectable={false} elementsSelectable={false}>
+                                <ReactFlow key={machineIndex} nodes={nodes} edges={edges} edgeTypes={edgeTypes} nodeTypes={nodeTypes} fitView fitViewOptions={{ padding: 0.35 }} colorMode={isRetroTheme ? "dark" : "light"} panOnDrag={false} zoomOnScroll={false} zoomOnPinch={false} zoomOnDoubleClick={false} nodesDraggable={false} nodesConnectable={false} elementsSelectable={false}>
                                     <AutoFitView splitPercent={splitPercent} />
                                     <Background color={isRetroTheme ? '#ffffff' : '#cbd5e1'} gap={20} size={2} />
                                 </ReactFlow>
                             </div>
 
-                            <div style={{ minHeight: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: controlsBg, borderTop: `2px solid ${canvasBorder}`, zIndex: 10, padding: '12px' }}>
+                            {/* STATUS BAR */}
+                            <div style={{ minHeight: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: controlsBg, borderTop: `2px solid ${canvasBorder}`, zIndex: 10, padding: '8px' }}>
                                 {actionMessage ? (
-                                    <div style={{ padding: '8px 16px', backgroundColor: (isAccepted || isCrashed || isFinishedReading) ? (isAccepted ? '#065f46' : '#fee2e2') : (isRetroTheme ? '#1e3a8a' : '#dbeafe'), color: (isAccepted || isCrashed || isFinishedReading) ? (isAccepted ? '#ffffff' : '#991b1b') : (isRetroTheme ? '#ffffff' : '#1e3a8a'), borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', border: '2px solid currentColor', boxShadow: shadow }}>
+                                    <div style={{ padding: '6px 16px', backgroundColor: isAccepted ? '#ecfdf5' : '#fef2f2', color: isAccepted ? '#065f46' : '#991b1b', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', border: '2px solid currentColor', boxShadow: shadow }}>
                                         {actionMessage}
                                     </div>
                                 ) : null}
@@ -537,7 +533,7 @@ function PDAContent() {
                             {isCrashed && (
                                 <div style={{ marginTop: '12px', padding: '16px', backgroundColor: '#fef2f2', border: `3px solid #ef4444`, borderRadius: '12px', color: '#991b1b', textAlign: 'left', alignSelf: 'flex-start', maxWidth: '90%', boxShadow: shadow }}>
                                     <div style={{ fontWeight: '900', fontSize: '16px', marginBottom: '4px', textTransform: 'uppercase' }}>❌ Crash: Invalid Transition</div>
-                                    <div style={{ fontSize: '14px', fontWeight: 'bold' }}>The machine attempted to read '{currentSnapshot.stepIndex < inputString.length ? inputString[currentSnapshot.stepIndex] : 'ε'}', but the top of the stack was '{currentSnapshot.stack[currentSnapshot.stack.length - 1]}'. No valid rule exists for this combination in state {currentSnapshot.state}.</div>
+                                    <div style={{ fontSize: '14px', fontWeight: 'bold' }}>The machine attempted to read '{currentSnapshot.stepIndex < inputString.length ? inputString[currentSnapshot.stepIndex] : 'ε'}', but the top of the stack was '{currentSnapshot.stack[currentSnapshot.stack.length - 1]}'. No valid rule exists for this combination.</div>
                                 </div>
                             )}
                             {isFinishedReading && !isAccepted && !isCrashed && (
