@@ -10,7 +10,7 @@ import { useTheme } from "../ThemeContext";
 
 const tmMachines = [
     {
-        name: "1. 1's Complement",
+        name: "1's Complement",
         defaultInput: "0101",
         alphabet: ['0', '1'],
         states: ['q0', 'q1', 'q2'],
@@ -39,7 +39,7 @@ const tmMachines = [
         ]
     },
     {
-        name: "2. Tape Eraser",
+        name: "Tape Eraser",
         defaultInput: "1011",
         alphabet: ['0', '1'],
         states: ['q0', 'q1'],
@@ -62,7 +62,7 @@ const tmMachines = [
         ]
     },
     {
-        name: "3. Binary Increment (+1)",
+        name: "Binary Increment (+1)",
         defaultInput: "1011",
         alphabet: ['0', '1'],
         states: ['q0', 'q1', 'q2'],
@@ -91,7 +91,7 @@ const tmMachines = [
         ]
     },
     {
-        name: "4. Recognize 0^n 1^n",
+        name: "Recognize 0^n 1^n",
         defaultInput: "0011",
         alphabet: ['0', '1'],
         states: ['q0', 'q1', 'q2', 'q3', 'q4'],
@@ -271,6 +271,7 @@ function TMContent() {
         setIsPlaying(false);
         setIsCrashed(false);
     }, [machineIndex, currentMachine]);
+
 
     const handleMouseDown = (e: React.MouseEvent) => {
         e.preventDefault(); setIsDragging(true);

@@ -11,7 +11,7 @@ import { useTheme } from "./ThemeContext";
 
 const faMachines = [
   {
-    name: "1. Even Number of Zeros",
+    name: "Even Number of Zeros",
     defaultInput: "10100",
     alphabet: ['0', '1'],
     states: ['q0', 'q1'],
@@ -37,7 +37,7 @@ const faMachines = [
     ]
   },
   {
-    name: "2. Ends with 'ab'",
+    name: "Ends with 'ab'",
     defaultInput: "aabab",
     alphabet: ['a', 'b'],
     states: ['q0', 'q1', 'q2'],
@@ -68,7 +68,7 @@ const faMachines = [
     ]
   },
   {
-    name: "3. Contains 'aba'",
+    name: "Contains 'aba'",
     defaultInput: "bbababb",
     alphabet: ['a', 'b'],
     states: ['q0', 'q1', 'q2', 'q3'],
@@ -103,7 +103,7 @@ const faMachines = [
     ]
   },
   {
-    name: "4. Binary Divisible by 3",
+    name: "Binary Divisible by 3",
     defaultInput: "1100",
     alphabet: ['0', '1'],
     states: ['q0', 'q1', 'q2'],
@@ -313,7 +313,7 @@ function AutomataContent() {
           if (transition) {
             setHistory(prev => [...prev, transition.to]);
             setCurrentIndex(prev => prev + 1);
-          } else { setIsPlaying(false); }
+          } else { setIsPlaying(false); } // crash protection
         }
       }, playbackSpeed);
     } else if (isFinished) setIsPlaying(false);

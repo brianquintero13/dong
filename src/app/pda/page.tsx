@@ -10,7 +10,7 @@ import { useTheme } from "../ThemeContext";
 
 const pdaMachines = [
     {
-        name: "1. 0^n 1^n",
+        name: "0^n 1^n",
         defaultInput: "0011",
         alphabet: ['0', '1'],
         states: ['q0', 'q1', 'q2'],
@@ -41,7 +41,7 @@ const pdaMachines = [
         ]
     },
     {
-        name: "2. 0^n 1^2n",
+        name: "0^n 1^2n",
         defaultInput: "001111",
         alphabet: ['0', '1'],
         states: ['q0', 'q1', 'q2'],
@@ -72,7 +72,7 @@ const pdaMachines = [
         ]
     },
     {
-        name: "3. Balanced Parentheses",
+        name: "Balanced Parentheses",
         defaultInput: "()(())",
         alphabet: ['(', ')'],
         states: ['q0', 'q1'],
@@ -98,7 +98,7 @@ const pdaMachines = [
         ]
     },
     {
-        name: "4. Marked Palindrome (w c w^R)",
+        name: "Marked Palindrome",
         defaultInput: "01c10",
         alphabet: ['0', '1', 'c'],
         states: ['q0', 'q1', 'q2'],
